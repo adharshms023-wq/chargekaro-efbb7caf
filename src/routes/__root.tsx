@@ -88,6 +88,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "ChargeShare — Find EV Chargers Anywhere" },
+      { name: "twitter:description", content: "Discover public charging stations and community EV chargers across India." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/256ef54d-e0ce-449e-b526-bf17ac93bdd2/id-preview-91fe04cf--74708d3b-e656-4989-8306-0f63e92636e7.lovable.app-1784440706683.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/256ef54d-e0ce-449e-b526-bf17ac93bdd2/id-preview-91fe04cf--74708d3b-e656-4989-8306-0f63e92636e7.lovable.app-1784440706683.png" },
     ],
     links: [
       {
