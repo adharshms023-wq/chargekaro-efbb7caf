@@ -2,8 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Search, Filter, MapPin } from "lucide-react";
 import { useChargers } from "@/lib/chargers-store";
-import { ClientOnly } from "@/components/ClientOnly";
-import { ChargerMap } from "@/components/ChargerMap";
+import { LazyChargerMap } from "@/components/LazyChargerMap";
 import type { ConnectorType } from "@/data/chargers";
 
 export const Route = createFileRoute("/explore")({
@@ -122,9 +121,7 @@ function Explore() {
 
       {/* Map */}
       <div className="h-[70vh] min-h-[500px] lg:h-[calc(100vh-8rem)]">
-        <ClientOnly fallback={<div className="grid h-full place-items-center rounded-2xl border border-border bg-muted/30 text-sm text-muted-foreground">Loading map…</div>}>
-          <ChargerMap chargers={filtered} selectedId={selectedId} />
-        </ClientOnly>
+        <LazyChargerMap chargers={filtered} selectedId={selectedId} />
       </div>
     </div>
   );
