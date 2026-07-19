@@ -1,8 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, MapPin, Clock, Zap, Star, Navigation2, Share2, Phone } from "lucide-react";
 import { useChargers } from "@/lib/chargers-store";
-import { ClientOnly } from "@/components/ClientOnly";
-import { ChargerMap } from "@/components/ChargerMap";
+import { LazyChargerMap } from "@/components/LazyChargerMap";
 
 export const Route = createFileRoute("/charger/$id")({
   component: ChargerDetail,
@@ -136,9 +135,7 @@ function ChargerDetail() {
           </div>
 
           <div className="h-64 overflow-hidden rounded-2xl">
-            <ClientOnly fallback={<div className="grid h-full place-items-center border border-border bg-muted/30 text-sm text-muted-foreground">Loading map…</div>}>
-              <ChargerMap chargers={[c]} center={[c.lat, c.lng]} zoom={14} selectedId={c.id} />
-            </ClientOnly>
+            <LazyChargerMap chargers={[c]} center={[c.lat, c.lng]} zoom={14} selectedId={c.id} />
           </div>
         </aside>
       </div>
