@@ -1,6 +1,8 @@
 export type ChargerSource = "public" | "community" | "place";
 export type ChargerSpeed = "fast" | "slow";
 export type ConnectorType = "CCS2" | "Type 2" | "CHAdeMO" | "Bharat AC" | "Bharat DC";
+export type ChargerStatus = "available" | "busy" | "offline";
+export type Facility = "Restroom" | "Cafe" | "Wi-Fi" | "Parking" | "Shopping" | "Restaurant" | "Lounge";
 
 export interface Charger {
   id: string;
@@ -24,6 +26,51 @@ export interface Charger {
   description: string;
   image: string;
   reviews?: { author: string; rating: number; comment: string }[];
+  ports?: number;
+  reviewCount?: number;
+  facilities?: Facility[];
+  rules?: string[];
+  status?: ChargerStatus;
+  featured?: boolean;
+}
+
+// Mock user location (Kochi center) used for distance estimation
+export const USER_LOCATION: [number, number] = [9.9989, 76.2986];
+
+export function haversineKm(a: [number, number], b: [number, number]) {
+  const toRad = (x: number) => (x * Math.PI) / 180;
+  const R = 6371;
+  const dLat = toRad(b[0] - a[0]);
+  const dLng = toRad(b[1] - a[1]);
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a[0])) * Math.cos(toRad(b[0])) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(s));
+}
+
+export function chargerStatus(c: Charger): ChargerStatus {
+  if (c.status) return c.status;
+  return c.available ? "available" : "busy";
+}
+
+export function defaultPorts(c: Charger): number {
+  return c.ports ?? (c.source === "community" ? 1 : c.speed === "fast" ? 4 : 2);
+}
+
+export function defaultFacilities(c: Charger): Facility[] {
+  if (c.facilities) return c.facilities;
+  if (c.source === "place") {
+    if (c.placeCategory === "Cafe") return ["Cafe", "Wi-Fi", "Restroom", "Parking"];
+    if (c.placeCategory === "Mall") return ["Shopping", "Restaurant", "Restroom", "Parking"];
+    if (c.placeCategory === "Hotel" || c.placeCategory === "Resort") return ["Lounge", "Restaurant", "Wi-Fi", "Parking", "Restroom"];
+    return ["Restaurant", "Wi-Fi", "Parking"];
+  }
+  if (c.source === "public") return ["Parking", "Restroom"];
+  return ["Parking"];
+}
+
+export function estimatedChargeMins(c: Charger, kwhNeeded = 30): number {
+  return Math.max(15, Math.round((kwhNeeded / c.powerKw) * 60));
 }
 
 const img = (seed: string) =>
