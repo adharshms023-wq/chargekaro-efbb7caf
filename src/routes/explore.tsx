@@ -220,7 +220,7 @@ function Explore() {
 
       {/* Map */}
       <div className="h-[70vh] min-h-[500px] lg:h-[calc(100vh-8rem)]">
-        <LazyChargerMap chargers={filtered} selectedId={selectedId} />
+        <LazyChargerMap chargers={filtered} selectedId={selectedId} onSelect={setSelectedId} />
       </div>
 
       <ChargerDetailsPanel charger={selected} onClose={() => setSelectedId(null)} />
