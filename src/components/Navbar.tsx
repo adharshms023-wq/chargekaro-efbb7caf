@@ -4,8 +4,10 @@ import { useState } from "react";
 
 const links = [
   { to: "/", label: "Home" },
-  { to: "/explore", label: "Explore Map" },
-  { to: "/list", label: "List Your Charger" },
+  { to: "/explore", label: "Explore" },
+  { to: "/community", label: "Community" },
+  { to: "/list", label: "List Charger" },
+  { to: "/dashboard", label: "Dashboard" },
   { to: "/about", label: "About" },
 ] as const;
 
