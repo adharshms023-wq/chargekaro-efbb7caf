@@ -31,9 +31,10 @@ interface Props {
   zoom?: number;
   height?: string;
   selectedId?: string | null;
+  onSelect?: (id: string) => void;
 }
 
-export function ChargerMap({ chargers, center = [10.5, 76.5], zoom = 8, height = "100%", selectedId }: Props) {
+export function ChargerMap({ chargers, center = [10.5, 76.5], zoom = 8, height = "100%", selectedId, onSelect }: Props) {
   const selected = chargers.find((c) => c.id === selectedId);
   const activeCenter: [number, number] = selected ? [selected.lat, selected.lng] : center;
   return (
@@ -45,7 +46,12 @@ export function ChargerMap({ chargers, center = [10.5, 76.5], zoom = 8, height =
         />
         {selected && <Recenter center={activeCenter} />}
         {chargers.map((c) => (
-          <Marker key={c.id} position={[c.lat, c.lng]} icon={iconFor(c)}>
+          <Marker
+            key={c.id}
+            position={[c.lat, c.lng]}
+            icon={iconFor(c)}
+            eventHandlers={onSelect ? { click: () => onSelect(c.id) } : undefined}
+          >
             <Popup>
               <div style={{ minWidth: 220 }}>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{c.name}</div>
@@ -55,15 +61,16 @@ export function ChargerMap({ chargers, center = [10.5, 76.5], zoom = 8, height =
                   {c.available ? <span style={{ color: "#22C55E", fontWeight: 600 }}>Available</span> : <span style={{ color: "#F97316", fontWeight: 600 }}>Busy</span>}
                   {" · ★ "}{c.rating}
                 </div>
-                <div style={{ fontSize: 12 }}>{c.hours}</div>
-                <div style={{ fontSize: 12 }}>{c.connectors.join(", ")}</div>
                 <div style={{ display: "flex", gap: 6, paddingTop: 6 }}>
-                  <Link to="/charger/$id" params={{ id: c.id }} style={{ background: "#22C55E", color: "white", padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 500, textDecoration: "none" }}>
-                    Details
-                  </Link>
-                  <a href={`https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}`} target="_blank" rel="noreferrer" style={{ border: "1px solid #e5e7eb", padding: "4px 8px", borderRadius: 6, fontSize: 12, fontWeight: 500, textDecoration: "none", color: "#111" }}>
-                    Google Maps
-                  </a>
+                  {onSelect ? (
+                    <button onClick={() => onSelect(c.id)} style={{ background: "#22C55E", color: "white", padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, border: "none", cursor: "pointer" }}>
+                      Open details
+                    </button>
+                  ) : (
+                    <Link to="/charger/$id" params={{ id: c.id }} style={{ background: "#22C55E", color: "white", padding: "4px 10px", borderRadius: 999, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+                      Open details
+                    </Link>
+                  )}
                 </div>
               </div>
             </Popup>

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Upload, Check } from "lucide-react";
 import { useChargers } from "@/lib/chargers-store";
-import type { Charger, ConnectorType } from "@/data/chargers";
+import type { Charger, ConnectorType, Facility } from "@/data/chargers";
 
 export const Route = createFileRoute("/list")({
   head: () => ({
@@ -17,11 +17,14 @@ export const Route = createFileRoute("/list")({
 });
 
 const CONNECTORS: ConnectorType[] = ["CCS2", "Type 2", "CHAdeMO", "Bharat AC", "Bharat DC"];
+const FACILITIES: Facility[] = ["Restroom", "Cafe", "Wi-Fi", "Parking", "Shopping", "Restaurant", "Lounge"];
 
 function ListCharger() {
   const { addCharger } = useChargers();
   const navigate = useNavigate();
   const [saved, setSaved] = useState(false);
+  const [facilities, setFacilities] = useState<Facility[]>(["Parking"]);
+  const [rules, setRules] = useState("No overnight parking\nBring your own cable");
   const [form, setForm] = useState({
     name: "",
     ownerName: "",
@@ -37,10 +40,16 @@ function ListCharger() {
     available: true,
     pricePerKwh: "12",
     description: "",
+    scheduleStart: "18:00",
+    scheduleEnd: "08:00",
+    ports: "1",
   });
 
   const update = <K extends keyof typeof form>(k: K, v: (typeof form)[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
+
+  const toggleFacility = (f: Facility) =>
+    setFacilities((cur) => (cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f]));
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,10 +70,14 @@ function ListCharger() {
       powerKw: parseFloat(form.powerKw) || 7.4,
       available: form.available,
       rating: 5,
-      hours: "24/7",
+      hours: `${form.scheduleStart} - ${form.scheduleEnd}`,
       pricePerKwh: parseFloat(form.pricePerKwh) || 12,
       description: form.description || "Community charger.",
       image: "https://images.unsplash.com/photo-1617704548623-340376564e68?auto=format&fit=crop&w=1200&q=70",
+      facilities,
+      ports: parseInt(form.ports) || 1,
+      rules: rules.split("\n").map((r) => r.trim()).filter(Boolean),
+      status: form.available ? "available" : "busy",
     };
     addCharger(c);
     setSaved(true);
@@ -112,6 +125,9 @@ function ListCharger() {
             </Field>
             <Field label="Power (kW)"><input value={form.powerKw} onChange={(e) => update("powerKw", e.target.value)} className={input} /></Field>
             <Field label="Price per kWh (₹)"><input value={form.pricePerKwh} onChange={(e) => update("pricePerKwh", e.target.value)} className={input} /></Field>
+            <Field label="Number of ports"><input value={form.ports} onChange={(e) => update("ports", e.target.value)} className={input} /></Field>
+            <Field label="Available from"><input type="time" value={form.scheduleStart} onChange={(e) => update("scheduleStart", e.target.value)} className={input} /></Field>
+            <Field label="Available till"><input type="time" value={form.scheduleEnd} onChange={(e) => update("scheduleEnd", e.target.value)} className={input} /></Field>
             <Field label="Availability">
               <label className="flex h-10 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm">
                 <input type="checkbox" checked={form.available} onChange={(e) => update("available", e.target.checked)} /> Available now
@@ -121,6 +137,26 @@ function ListCharger() {
               <textarea rows={3} value={form.description} onChange={(e) => update("description", e.target.value)} className={`${input} py-2`} />
             </Field>
           </div>
+        </Section>
+
+        <Section title="Amenities">
+          <div className="flex flex-wrap gap-2">
+            {FACILITIES.map((f) => (
+              <button type="button" key={f} onClick={() => toggleFacility(f)}
+                className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                  facilities.includes(f) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:bg-muted"
+                }`}>
+                {f}
+              </button>
+            ))}
+          </div>
+        </Section>
+
+        <Section title="House rules">
+          <textarea rows={4} value={rules} onChange={(e) => setRules(e.target.value)}
+            placeholder="One rule per line"
+            className={`${input} h-auto py-2`} />
+          <p className="mt-1 text-[11px] text-muted-foreground">One rule per line. Shown to drivers before they book.</p>
         </Section>
 
         <Section title="Photos">

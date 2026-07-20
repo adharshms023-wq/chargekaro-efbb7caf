@@ -10,6 +10,7 @@ interface Props {
   zoom?: number;
   height?: string;
   selectedId?: string | null;
+  onSelect?: (id: string) => void;
 }
 
 export function LazyChargerMap(props: Props) {
