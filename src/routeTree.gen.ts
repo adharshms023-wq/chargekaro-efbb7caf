@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ListRouteImport } from './routes/list'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -24,6 +25,11 @@ const ListRoute = ListRouteImport.update({
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityRoute = CommunityRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/community': typeof CommunityRoute
+  '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/community': typeof CommunityRoute
+  '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/community': typeof CommunityRoute
+  '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
@@ -78,16 +87,25 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/community'
+    | '/dashboard'
     | '/explore'
     | '/list'
     | '/charger/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/community' | '/explore' | '/list' | '/charger/$id'
+  to:
+    | '/'
+    | '/about'
+    | '/community'
+    | '/dashboard'
+    | '/explore'
+    | '/list'
+    | '/charger/$id'
   id:
     | '__root__'
     | '/'
     | '/about'
     | '/community'
+    | '/dashboard'
     | '/explore'
     | '/list'
     | '/charger/$id'
@@ -97,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   CommunityRoute: typeof CommunityRoute
+  DashboardRoute: typeof DashboardRoute
   ExploreRoute: typeof ExploreRoute
   ListRoute: typeof ListRoute
   ChargerIdRoute: typeof ChargerIdRoute
@@ -116,6 +135,13 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/community': {
@@ -153,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   CommunityRoute: CommunityRoute,
+  DashboardRoute: DashboardRoute,
   ExploreRoute: ExploreRoute,
   ListRoute: ListRoute,
   ChargerIdRoute: ChargerIdRoute,
