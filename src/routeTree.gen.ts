@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ListRouteImport } from './routes/list'
 import { Route as ExploreRouteImport } from './routes/explore'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ChargerIdRouteImport } from './routes/charger.$id'
@@ -23,6 +24,11 @@ const ListRoute = ListRouteImport.update({
 const ExploreRoute = ExploreRouteImport.update({
   id: '/explore',
   path: '/explore',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AboutRoute = AboutRouteImport.update({
@@ -44,6 +50,7 @@ const ChargerIdRoute = ChargerIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/community': typeof CommunityRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/community': typeof CommunityRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
@@ -59,21 +67,36 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/community': typeof CommunityRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/explore' | '/list' | '/charger/$id'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/community'
+    | '/explore'
+    | '/list'
+    | '/charger/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/explore' | '/list' | '/charger/$id'
-  id: '__root__' | '/' | '/about' | '/explore' | '/list' | '/charger/$id'
+  to: '/' | '/about' | '/community' | '/explore' | '/list' | '/charger/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/community'
+    | '/explore'
+    | '/list'
+    | '/charger/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  CommunityRoute: typeof CommunityRoute
   ExploreRoute: typeof ExploreRoute
   ListRoute: typeof ListRoute
   ChargerIdRoute: typeof ChargerIdRoute
@@ -93,6 +116,13 @@ declare module '@tanstack/react-router' {
       path: '/explore'
       fullPath: '/explore'
       preLoaderRoute: typeof ExploreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
@@ -122,6 +152,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  CommunityRoute: CommunityRoute,
   ExploreRoute: ExploreRoute,
   ListRoute: ListRoute,
   ChargerIdRoute: ChargerIdRoute,
