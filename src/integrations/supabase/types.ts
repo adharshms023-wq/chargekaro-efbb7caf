@@ -14,7 +14,269 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chargers: {
+        Row: {
+          address: string
+          city: string | null
+          connectors: string[]
+          created_at: string
+          description: string | null
+          facilities: string[]
+          hours: string
+          id: string
+          image: string | null
+          is_published: boolean
+          lat: number
+          lng: number
+          name: string
+          owner_id: string | null
+          owner_name: string | null
+          payhip_mode: Database["public"]["Enums"]["payhip_mode"] | null
+          payhip_product_url: string | null
+          phone: string | null
+          power_kw: number
+          price_per_kwh: number
+          rules: string | null
+          source: Database["public"]["Enums"]["charger_source"]
+          speed: Database["public"]["Enums"]["charging_speed"]
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city?: string | null
+          connectors?: string[]
+          created_at?: string
+          description?: string | null
+          facilities?: string[]
+          hours?: string
+          id?: string
+          image?: string | null
+          is_published?: boolean
+          lat: number
+          lng: number
+          name: string
+          owner_id?: string | null
+          owner_name?: string | null
+          payhip_mode?: Database["public"]["Enums"]["payhip_mode"] | null
+          payhip_product_url?: string | null
+          phone?: string | null
+          power_kw: number
+          price_per_kwh?: number
+          rules?: string | null
+          source?: Database["public"]["Enums"]["charger_source"]
+          speed?: Database["public"]["Enums"]["charging_speed"]
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string | null
+          connectors?: string[]
+          created_at?: string
+          description?: string | null
+          facilities?: string[]
+          hours?: string
+          id?: string
+          image?: string | null
+          is_published?: boolean
+          lat?: number
+          lng?: number
+          name?: string
+          owner_id?: string | null
+          owner_name?: string | null
+          payhip_mode?: Database["public"]["Enums"]["payhip_mode"] | null
+          payhip_product_url?: string | null
+          phone?: string | null
+          power_kw?: number
+          price_per_kwh?: number
+          rules?: string | null
+          source?: Database["public"]["Enums"]["charger_source"]
+          speed?: Database["public"]["Enums"]["charging_speed"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      charging_sessions: {
+        Row: {
+          amount: number
+          charger_id: string
+          created_at: string
+          id: string
+          kwh: number | null
+          mode: Database["public"]["Enums"]["session_mode"]
+          note: string | null
+          paid_at: string | null
+          payhip_reference: string | null
+          status: Database["public"]["Enums"]["session_status"]
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          charger_id: string
+          created_at?: string
+          id?: string
+          kwh?: number | null
+          mode: Database["public"]["Enums"]["session_mode"]
+          note?: string | null
+          paid_at?: string | null
+          payhip_reference?: string | null
+          status?: Database["public"]["Enums"]["session_status"]
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          charger_id?: string
+          created_at?: string
+          id?: string
+          kwh?: number | null
+          mode?: Database["public"]["Enums"]["session_mode"]
+          note?: string | null
+          paid_at?: string | null
+          payhip_reference?: string | null
+          status?: Database["public"]["Enums"]["session_status"]
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "charging_sessions_charger_id_fkey"
+            columns: ["charger_id"]
+            isOneToOne: false
+            referencedRelation: "chargers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorites: {
+        Row: {
+          charger_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          charger_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          charger_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_charger_id_fkey"
+            columns: ["charger_id"]
+            isOneToOne: false
+            referencedRelation: "chargers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      live_updates: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          charger_id: string
+          created_at: string
+          expires_at: string
+          id: string
+          kind: string
+          message: string
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          charger_id: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kind: string
+          message: string
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          charger_id?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          kind?: string
+          message?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_updates_charger_id_fkey"
+            columns: ["charger_id"]
+            isOneToOne: false
+            referencedRelation: "chargers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          id: string
+          is_host: boolean
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          id: string
+          is_host?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          is_host?: boolean
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_id: string | null
+          author_name: string | null
+          charger_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+        }
+        Insert: {
+          author_id?: string | null
+          author_name?: string | null
+          charger_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+        }
+        Update: {
+          author_id?: string | null
+          author_name?: string | null
+          charger_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_charger_id_fkey"
+            columns: ["charger_id"]
+            isOneToOne: false
+            referencedRelation: "chargers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +285,11 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      charger_source: "public" | "community" | "place"
+      charging_speed: "fast" | "slow"
+      payhip_mode: "fixed" | "pwyw"
+      session_mode: "upfront" | "metered"
+      session_status: "pending" | "paid" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +416,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      charger_source: ["public", "community", "place"],
+      charging_speed: ["fast", "slow"],
+      payhip_mode: ["fixed", "pwyw"],
+      session_mode: ["upfront", "metered"],
+      session_status: ["pending", "paid", "cancelled"],
+    },
   },
 } as const
