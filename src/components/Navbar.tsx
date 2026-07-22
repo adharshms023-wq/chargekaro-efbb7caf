@@ -1,6 +1,7 @@
-import { Link } from "@tanstack/react-router";
-import { Zap, Menu, X } from "lucide-react";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { Zap, Menu, X, LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "@/lib/auth";
 
 const links = [
   { to: "/", label: "Home" },
@@ -13,6 +14,14 @@ const links = [
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate({ to: "/" });
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
@@ -34,6 +43,22 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
+          {user ? (
+            <button
+              onClick={handleSignOut}
+              className="ml-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold hover:bg-muted"
+              title={user.email ?? undefined}
+            >
+              <User className="h-3.5 w-3.5" /> Sign out
+            </button>
+          ) : (
+            <Link
+              to="/auth"
+              className="ml-2 inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-1.5 text-xs font-semibold text-primary-foreground"
+            >
+              <LogIn className="h-3.5 w-3.5" /> Sign in
+            </Link>
+          )}
         </nav>
         <button
           onClick={() => setOpen((v) => !v)}
@@ -58,6 +83,22 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
+            {user ? (
+              <button
+                onClick={() => { setOpen(false); handleSignOut(); }}
+                className="mt-1 inline-flex items-center gap-2 rounded-md px-4 py-3 text-left text-sm font-semibold"
+              >
+                <LogOut className="h-4 w-4" /> Sign out
+              </button>
+            ) : (
+              <Link
+                to="/auth"
+                onClick={() => setOpen(false)}
+                className="mt-1 inline-flex items-center gap-2 rounded-md bg-primary/10 px-4 py-3 text-sm font-semibold text-primary"
+              >
+                <LogIn className="h-4 w-4" /> Sign in
+              </Link>
+            )}
           </div>
         </div>
       )}
