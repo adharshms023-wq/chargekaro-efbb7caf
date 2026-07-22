@@ -11,9 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
-import { ChargersProvider } from "@/lib/chargers-store";
+import { AuthProvider } from "@/lib/auth";
 import { FavoritesProvider } from "@/lib/favorites";
-import { LiveUpdatesProvider } from "@/lib/live-updates";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 
@@ -92,8 +91,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
       { name: "twitter:title", content: "ChargeShare — Find EV Chargers Anywhere" },
       { name: "twitter:description", content: "Discover public charging stations and community EV chargers across India." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/256ef54d-e0ce-449e-b526-bf17ac93bdd2/id-preview-91fe04cf--74708d3b-e656-4989-8306-0f63e92636e7.lovable.app-1784440706683.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/256ef54d-e0ce-449e-b526-bf17ac93bdd2/id-preview-91fe04cf--74708d3b-e656-4989-8306-0f63e92636e7.lovable.app-1784440706683.png" },
     ],
     links: [
       {
@@ -128,19 +125,17 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ChargersProvider>
+      <AuthProvider>
         <FavoritesProvider>
-          <LiveUpdatesProvider>
-            <div className="flex min-h-screen flex-col">
-              <Navbar />
-              <main className="flex-1">
-                <Outlet />
-              </main>
-              <Footer />
-            </div>
-          </LiveUpdatesProvider>
+          <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">
+              <Outlet />
+            </main>
+            <Footer />
+          </div>
         </FavoritesProvider>
-      </ChargersProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
 import {
   X, MapPin, Star, Zap, Clock, Navigation2, Share2, Heart, CalendarCheck,
   Phone, Users, Coffee, Wifi, Car, Utensils, ShoppingBag, Sofa, Bath,
-  Radio,
+  Radio, IndianRupee,
 } from "lucide-react";
 import type { Charger, Facility } from "@/data/chargers";
 import {
@@ -256,6 +256,16 @@ export function ChargerDetailsPanel({ charger, onClose }: Props) {
               <Share2 className="h-4 w-4" /> Share
             </button>
           </div>
+          {c.payhipUrl && (
+            <a
+              href={c.payhipUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-flex w-full items-center justify-center gap-2 rounded-full bg-emerald-600 py-2.5 text-sm font-semibold text-white"
+            >
+              <IndianRupee className="h-4 w-4" /> Pay host on Payhip
+            </a>
+          )}
           <div className="mt-2 grid grid-cols-2 gap-2">
             <button
               disabled
