@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import {
   ArrowLeft, MapPin, Clock, Zap, Star, Navigation2, Share2, Phone, Heart,
-  Coffee, Wifi, Car, Utensils, ShoppingBag, Sofa, Bath, ShieldCheck, Users,
+  Coffee, Wifi, Car, Utensils, ShoppingBag, Sofa, Bath, ShieldCheck, Users, IndianRupee,
 } from "lucide-react";
 import { useChargers } from "@/lib/chargers-store";
 import { LazyChargerMap } from "@/components/LazyChargerMap";
@@ -36,9 +36,14 @@ export const Route = createFileRoute("/charger/$id")({
 
 function ChargerDetail() {
   const { id } = Route.useParams();
-  const { chargers } = useChargers();
+  const { chargers, isLoading } = useChargers();
   const c = chargers.find((x) => x.id === id);
-  if (!c) throw notFound();
+  if (!c) {
+    if (isLoading) {
+      return <div className="mx-auto max-w-xl px-4 py-20 text-center text-sm text-muted-foreground">Loading charger…</div>;
+    }
+    throw notFound();
+  }
   const { isFavorite, toggleFavorite } = useFavorites();
   const { updatesFor } = useLiveUpdates();
   const status = chargerStatus(c);
