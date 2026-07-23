@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Zap, Menu, X, LogIn, LogOut, User } from "lucide-react";
+import { PlugZap, Menu, X, LogIn, LogOut, User } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/lib/auth";
 
@@ -26,8 +26,8 @@ export function Navbar() {
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 font-semibold">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Zap className="h-5 w-5" />
+          <span className="clay-primary grid h-10 w-10 place-items-center">
+            <PlugZap className="h-5 w-5" strokeWidth={2.4} />
           </span>
           <span className="text-lg tracking-tight">ChargeShare</span>
         </Link>
