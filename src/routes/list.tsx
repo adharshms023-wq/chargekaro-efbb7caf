@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Upload, Check, Lock, AlertCircle } from "lucide-react";
+import { Upload, Check, Lock, AlertCircle, MapPin, LocateFixed } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { useChargers } from "@/lib/chargers-store";
@@ -29,6 +29,9 @@ function ListCharger() {
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mapLink, setMapLink] = useState("");
+  const [locMsg, setLocMsg] = useState<{ tone: "ok" | "err"; text: string } | null>(null);
+  const [locating, setLocating] = useState(false);
   const [facilities, setFacilities] = useState<Facility[]>(["Parking"]);
   const [rules, setRules] = useState("No overnight parking\nBring your own cable");
   const [form, setForm] = useState({
@@ -56,6 +59,70 @@ function ListCharger() {
 
   const toggleFacility = (f: Facility) =>
     setFacilities((cur) => (cur.includes(f) ? cur.filter((x) => x !== f) : [...cur, f]));
+
+  const setCoords = (lat: number, lng: number, note: string) => {
+    update("lat", lat.toFixed(6));
+    update("lng", lng.toFixed(6));
+    setLocMsg({ tone: "ok", text: note });
+  };
+
+  const parseMapLink = (raw: string): { lat: number; lng: number } | null => {
+    if (!raw) return null;
+    const s = raw.trim();
+    // patterns: @lat,lng  |  q=lat,lng  |  ll=lat,lng  |  !3dlat!4dlng  |  "lat,lng"
+    const patterns = [
+      /@(-?\d+\.\d+),(-?\d+\.\d+)/,
+      /[?&](?:q|ll|destination|center)=(-?\d+\.\d+),(-?\d+\.\d+)/,
+      /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,
+      /^(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)$/,
+    ];
+    for (const re of patterns) {
+      const m = s.match(re);
+      if (m) return { lat: parseFloat(m[1]), lng: parseFloat(m[2]) };
+    }
+    return null;
+  };
+
+  const applyMapLink = async () => {
+    setLocMsg(null);
+    let link = mapLink.trim();
+    if (!link) return;
+    // resolve short links (maps.app.goo.gl / goo.gl/maps) by following redirect
+    if (/^https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(link)) {
+      try {
+        const r = await fetch(link, { redirect: "follow" });
+        link = r.url || link;
+      } catch {
+        // ignore, try parsing original
+      }
+    }
+    const coords = parseMapLink(link);
+    if (!coords) {
+      setLocMsg({ tone: "err", text: "Couldn't read coordinates from that link. Open the pin in Google Maps → Share → Copy link." });
+      return;
+    }
+    setCoords(coords.lat, coords.lng, "Location set from Google Maps link.");
+  };
+
+  const useCurrentLocation = () => {
+    setLocMsg(null);
+    if (!("geolocation" in navigator)) {
+      setLocMsg({ tone: "err", text: "Geolocation not supported on this device." });
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords(pos.coords.latitude, pos.coords.longitude, "Location set from your current position.");
+        setLocating(false);
+      },
+      (err) => {
+        setLocMsg({ tone: "err", text: err.message || "Couldn't get your location." });
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
 
   useEffect(() => {
     if (!loading && !user) {
@@ -147,11 +214,66 @@ function ListCharger() {
             <Field label="Phone number"><input value={form.phone} onChange={(e) => update("phone", e.target.value)} className={input} placeholder="+91" /></Field>
             <Field label="City"><input value={form.city} onChange={(e) => update("city", e.target.value)} className={input} /></Field>
             <Field label="Address" full><input required value={form.address} onChange={(e) => update("address", e.target.value)} className={input} /></Field>
-            <Field label="Latitude"><input value={form.lat} onChange={(e) => update("lat", e.target.value)} className={input} /></Field>
-            <Field label="Longitude"><input value={form.lng} onChange={(e) => update("lng", e.target.value)} className={input} /></Field>
             <Field label="Cover image URL" full>
               <input value={form.image} onChange={(e) => update("image", e.target.value)} className={input} placeholder="https://…" />
             </Field>
+          </div>
+
+          <div className="mt-5 rounded-xl border border-border bg-background/60 p-4">
+            <div className="flex items-center gap-2">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary">
+                <MapPin className="h-4 w-4" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold">Pin your location</div>
+                <div className="text-[11px] text-muted-foreground">
+                  Paste a Google Maps link (Share → Copy link) or use your current location.
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+              <input
+                value={mapLink}
+                onChange={(e) => setMapLink(e.target.value)}
+                placeholder="https://maps.app.goo.gl/…  or  9.9989, 76.2986"
+                className={input}
+              />
+              <button
+                type="button"
+                onClick={applyMapLink}
+                className="h-10 shrink-0 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground"
+              >
+                Use link
+              </button>
+              <button
+                type="button"
+                onClick={useCurrentLocation}
+                disabled={locating}
+                className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-sm font-medium hover:bg-muted disabled:opacity-60"
+              >
+                <LocateFixed className="h-4 w-4" />
+                {locating ? "Locating…" : "Current location"}
+              </button>
+            </div>
+
+            {(form.lat && form.lng) ? (
+              <div className="mt-2 text-[11px] text-muted-foreground">
+                Pinned at <span className="font-mono">{form.lat}, {form.lng}</span>{" "}
+                · <a
+                  className="text-primary underline"
+                  href={`https://www.google.com/maps?q=${form.lat},${form.lng}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >Preview on Google Maps</a>
+              </div>
+            ) : null}
+
+            {locMsg && (
+              <div className={`mt-2 text-[11px] ${locMsg.tone === "ok" ? "text-primary" : "text-red-600"}`}>
+                {locMsg.text}
+              </div>
+            )}
           </div>
         </Section>
 
