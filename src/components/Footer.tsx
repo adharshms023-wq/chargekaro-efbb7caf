@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import { PlugZap } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 
 export function Footer() {
@@ -7,8 +7,8 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-4">
         <div>
           <div className="flex items-center gap-2 font-semibold">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Zap className="h-5 w-5" />
+            <span className="clay-primary grid h-10 w-10 place-items-center">
+              <PlugZap className="h-5 w-5" strokeWidth={2.4} />
             </span>
             ChargeShare
           </div>
