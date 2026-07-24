@@ -40,11 +40,15 @@ function Index() {
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               <Sparkles className="h-3.5 w-3.5" /> Find → Compare → Navigate → Charge
             </div>
-            <h1 className="mt-5 text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Every EV charger, <span className="text-primary">one map</span>.
+            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+              Find EV Charging Stations{" "}
+              <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+                Anywhere in Kerala
+              </span>
+              .
             </h1>
             <p className="mt-5 max-w-lg text-lg text-muted-foreground">
-              Public stations, private hosts and EV-friendly places — with live updates from a community of drivers.
+              Public stations, private hosts and EV-friendly places — with live driver updates, smart routing and transparent pricing.
             </p>
 
             {/* Hero search */}
