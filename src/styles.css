@@ -62,31 +62,33 @@
 }
 
 :root {
-  /* Claymorphism theme — soft pastel surfaces, chunky radius, dual soft shadows */
-  --radius: 1.25rem;
-  /* Palette: fresh mint primary + warm coral accent on cream-mint canvas */
-  --background: oklch(0.975 0.018 160);
-  --foreground: oklch(0.24 0.045 170);
-  --card: oklch(0.99 0.012 160);
-  --card-foreground: oklch(0.24 0.045 170);
-  --popover: oklch(0.99 0.012 160);
-  --popover-foreground: oklch(0.24 0.045 170);
-  --primary: oklch(0.74 0.17 160);
-  --primary-foreground: oklch(0.99 0.01 160);
-  --secondary: oklch(0.94 0.03 165);
-  --secondary-foreground: oklch(0.28 0.05 170);
-  --muted: oklch(0.945 0.022 160);
-  --muted-foreground: oklch(0.48 0.04 170);
-  --accent: oklch(0.82 0.14 40);
-  --accent-foreground: oklch(0.22 0.06 40);
+  /* ChargeKaro premium palette — Electric Green / Blue / Teal on near-white */
+  --radius: 1rem;
+  --background: oklch(0.985 0.005 240);
+  --foreground: oklch(0.18 0.02 250);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.02 250);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.02 250);
+  /* Electric Green #00E676 */
+  --primary: oklch(0.82 0.22 152);
+  --primary-foreground: oklch(0.16 0.03 160);
+  /* Blue #2979FF */
+  --secondary: oklch(0.62 0.22 260);
+  --secondary-foreground: oklch(0.99 0.01 260);
+  --muted: oklch(0.96 0.008 240);
+  --muted-foreground: oklch(0.5 0.02 250);
+  /* Teal #00BCD4 */
+  --accent: oklch(0.75 0.14 210);
+  --accent-foreground: oklch(0.16 0.03 220);
   --destructive: oklch(0.7 0.18 25);
   --destructive-foreground: oklch(0.99 0.01 25);
-  --border: oklch(0.9 0.025 160);
-  --input: oklch(0.945 0.022 160);
-  --ring: oklch(0.74 0.17 160);
+  --border: oklch(0.92 0.01 240);
+  --input: oklch(0.96 0.008 240);
+  --ring: oklch(0.82 0.22 152);
   /* Clay shadow tokens */
-  --clay-light: oklch(1 0 0 / 0.88);
-  --clay-dark: oklch(0.55 0.09 170 / 0.28);
+  --clay-light: oklch(1 0 0 / 0.9);
+  --clay-dark: oklch(0.45 0.08 250 / 0.18);
   --shadow-clay:
     -8px -8px 20px 0 var(--clay-light),
     10px 10px 24px -4px var(--clay-dark),
@@ -99,41 +101,43 @@
   --shadow-clay-inset:
     inset 4px 4px 10px 0 var(--clay-dark),
     inset -4px -4px 10px 0 var(--clay-light);
-  --chart-1: oklch(0.74 0.17 160);
-  --chart-2: oklch(0.82 0.14 40);
-  --chart-3: oklch(0.7 0.14 220);
+  --chart-1: oklch(0.82 0.22 152);
+  --chart-2: oklch(0.62 0.22 260);
+  --chart-3: oklch(0.75 0.14 210);
   --chart-4: oklch(0.85 0.14 90);
-  --chart-5: oklch(0.75 0.16 300);
-  --sidebar: oklch(0.96 0.02 160);
-  --sidebar-foreground: oklch(0.24 0.045 170);
-  --sidebar-primary: oklch(0.74 0.17 160);
-  --sidebar-primary-foreground: oklch(0.99 0.01 160);
-  --sidebar-accent: oklch(0.82 0.14 40);
-  --sidebar-accent-foreground: oklch(0.22 0.06 40);
-  --sidebar-border: oklch(0.9 0.025 160);
-  --sidebar-ring: oklch(0.74 0.17 160);
+  --chart-5: oklch(0.7 0.2 20);
+  --sidebar: oklch(0.98 0.005 240);
+  --sidebar-foreground: oklch(0.18 0.02 250);
+  --sidebar-primary: oklch(0.82 0.22 152);
+  --sidebar-primary-foreground: oklch(0.16 0.03 160);
+  --sidebar-accent: oklch(0.75 0.14 210);
+  --sidebar-accent-foreground: oklch(0.16 0.03 220);
+  --sidebar-border: oklch(0.92 0.01 240);
+  --sidebar-ring: oklch(0.82 0.22 152);
+  --font-sans: "Inter", "Manrope", ui-sans-serif, system-ui, sans-serif;
 }
 
 .dark {
-  --background: oklch(0.22 0.03 160);
-  --foreground: oklch(0.96 0.02 150);
-  --card: oklch(0.27 0.035 160);
-  --card-foreground: oklch(0.96 0.02 150);
-  --popover: oklch(0.27 0.035 160);
-  --popover-foreground: oklch(0.96 0.02 150);
-  --primary: oklch(0.78 0.16 150);
-  --primary-foreground: oklch(0.2 0.05 160);
-  --secondary: oklch(0.32 0.04 160);
-  --secondary-foreground: oklch(0.96 0.02 150);
-  --muted: oklch(0.3 0.035 160);
-  --muted-foreground: oklch(0.75 0.03 150);
-  --accent: oklch(0.4 0.08 155);
-  --accent-foreground: oklch(0.98 0.02 150);
+  /* Dark = #0D1117 base */
+  --background: oklch(0.17 0.015 260);
+  --foreground: oklch(0.97 0.005 240);
+  --card: oklch(0.21 0.02 260);
+  --card-foreground: oklch(0.97 0.005 240);
+  --popover: oklch(0.21 0.02 260);
+  --popover-foreground: oklch(0.97 0.005 240);
+  --primary: oklch(0.85 0.22 152);
+  --primary-foreground: oklch(0.15 0.03 160);
+  --secondary: oklch(0.66 0.2 260);
+  --secondary-foreground: oklch(0.99 0.01 260);
+  --muted: oklch(0.25 0.02 260);
+  --muted-foreground: oklch(0.72 0.02 240);
+  --accent: oklch(0.72 0.13 210);
+  --accent-foreground: oklch(0.15 0.03 220);
   --destructive: oklch(0.68 0.19 25);
   --destructive-foreground: oklch(0.98 0.01 25);
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.78 0.16 150);
+  --ring: oklch(0.85 0.22 152);
   --clay-light: oklch(1 0 0 / 0.06);
   --clay-dark: oklch(0 0 0 / 0.55);
   --shadow-clay:
@@ -170,18 +174,19 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
     background-image:
-      radial-gradient(at 12% 8%, oklch(0.88 0.1 160 / 0.55) 0px, transparent 55%),
-      radial-gradient(at 88% 12%, oklch(0.9 0.11 40 / 0.5) 0px, transparent 55%),
-      radial-gradient(at 72% 92%, oklch(0.9 0.09 210 / 0.42) 0px, transparent 55%);
+      radial-gradient(at 10% 5%, oklch(0.9 0.18 152 / 0.35) 0px, transparent 55%),
+      radial-gradient(at 92% 10%, oklch(0.85 0.18 260 / 0.28) 0px, transparent 55%),
+      radial-gradient(at 70% 95%, oklch(0.88 0.14 210 / 0.3) 0px, transparent 55%);
     background-attachment: fixed;
   }
 
   .dark body {
     background-image:
-      radial-gradient(at 15% 10%, oklch(0.4 0.1 150 / 0.5) 0px, transparent 55%),
-      radial-gradient(at 85% 15%, oklch(0.35 0.1 200 / 0.45) 0px, transparent 55%),
-      radial-gradient(at 70% 90%, oklch(0.35 0.08 280 / 0.4) 0px, transparent 55%);
+      radial-gradient(at 12% 8%, oklch(0.5 0.2 152 / 0.28) 0px, transparent 55%),
+      radial-gradient(at 88% 12%, oklch(0.45 0.2 260 / 0.28) 0px, transparent 55%),
+      radial-gradient(at 70% 92%, oklch(0.45 0.14 210 / 0.25) 0px, transparent 55%);
   }
 
   /* Puffy clay surfaces on the shared shadcn primitives */
@@ -248,11 +253,23 @@
 
 @utility clay-primary {
   border-radius: var(--radius-xl);
-  background: linear-gradient(145deg, oklch(0.82 0.16 160), oklch(0.68 0.17 160));
+  background: linear-gradient(145deg, oklch(0.86 0.2 152), oklch(0.7 0.22 175));
   color: var(--primary-foreground);
   box-shadow:
     -4px -4px 10px 0 var(--clay-light),
     6px 6px 14px -2px var(--clay-dark),
     inset 1px 1px 2px 0 oklch(1 0 0 / 0.55),
-    inset -1px -1px 2px 0 oklch(0.3 0.08 170 / 0.35);
+    inset -1px -1px 2px 0 oklch(0.3 0.1 160 / 0.35);
+}
+
+@utility glass {
+  background: color-mix(in oklab, var(--card) 65%, transparent);
+  backdrop-filter: blur(16px) saturate(160%);
+  border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
+  border-radius: var(--radius-xl);
+}
+
+@utility gradient-primary {
+  background: linear-gradient(135deg, oklch(0.82 0.22 152), oklch(0.72 0.18 200) 55%, oklch(0.66 0.2 260));
+  color: white;
 }
