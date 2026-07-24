@@ -40,26 +40,26 @@ function Index() {
             <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               <Sparkles className="h-3.5 w-3.5" /> Find → Compare → Navigate → Charge
             </div>
-            <h1 className="mt-5 text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl">
+            <h1 className="mt-5 text-3xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl">
               Find EV Charging Stations{" "}
               <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
                 Anywhere in Kerala
               </span>
               .
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-muted-foreground">
+            <p className="mt-5 max-w-lg text-base text-muted-foreground sm:text-lg">
               Public stations, private hosts and EV-friendly places — with live driver updates, smart routing and transparent pricing.
             </p>
 
             {/* Hero search */}
             <div className="mt-7 flex items-center gap-2 rounded-full border border-border bg-card p-1.5 shadow-lg shadow-primary/10">
-              <div className="flex flex-1 items-center gap-2 pl-4">
+              <div className="flex min-w-0 flex-1 items-center gap-2 pl-3 sm:pl-4">
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input placeholder="Search city, area or connector"
-                  className="w-full bg-transparent py-2 text-sm outline-none" />
+                  className="w-full min-w-0 bg-transparent py-2 text-sm outline-none" />
               </div>
-              <Link to="/explore" className="inline-flex items-center gap-1 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground">
-                Search <ArrowRight className="h-4 w-4" />
+              <Link to="/explore" className="inline-flex shrink-0 items-center gap-1 rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground sm:px-5">
+                <span className="hidden sm:inline">Search</span><ArrowRight className="h-4 w-4" />
               </Link>
             </div>
 
