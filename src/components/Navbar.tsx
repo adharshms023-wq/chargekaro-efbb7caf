@@ -60,7 +60,7 @@ export function Navbar() {
           </span>
           <span className="text-lg font-bold tracking-tight">ChargeKaro</span>
         </Link>
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {links.map((l) => (
             <Link
               key={l.to}
@@ -96,7 +96,7 @@ export function Navbar() {
             </Link>
           )}
         </nav>
-        <div className="flex items-center gap-1 md:hidden">
+        <div className="flex items-center gap-1 lg:hidden">
           <button
             onClick={toggleDark}
             className="grid h-9 w-9 place-items-center rounded-full border border-border"
@@ -114,7 +114,7 @@ export function Navbar() {
         </div>
       </div>
       {open && (
-        <div className="border-t border-border/60 bg-background md:hidden">
+        <div className="border-t border-border/60 bg-background lg:hidden">
           <div className="mx-auto flex max-w-7xl flex-col p-2">
             {links.map((l) => (
               <Link
