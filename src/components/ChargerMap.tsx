@@ -39,7 +39,7 @@ export function ChargerMap({ chargers, center = [10.5, 76.5], zoom = 8, height =
   const activeCenter: [number, number] = selected ? [selected.lat, selected.lng] : center;
   return (
     <div style={{ height, width: "100%" }} className="overflow-hidden rounded-2xl border border-border">
-      <MapContainer center={center} zoom={zoom} style={{ height: "100%", width: "100%" }} scrollWheelZoom>
+      <MapContainer center={center} zoom={zoom} style={{ height: "100%", width: "100%" }} scrollWheelZoom={false}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
