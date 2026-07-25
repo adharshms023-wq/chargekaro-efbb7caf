@@ -1,8 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import {
   BarChart3, Bookmark, IndianRupee, Users, Zap, ArrowUpRight, Star,
-  MessageSquare, Activity, Lock,
+  MessageSquare, Activity, Lock, Pencil, Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
@@ -33,6 +34,26 @@ interface Session {
 function Dashboard() {
   const { user, loading } = useAuth();
   const { favorites } = useFavorites();
+  const qc = useQueryClient();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  const handleDelete = async (id: string) => {
+    setDeletingId(id);
+    try {
+      const { error } = await supabase.from("chargers").delete().eq("id", id);
+      if (error) throw error;
+      await Promise.all([
+        qc.invalidateQueries({ queryKey: ["my_chargers"] }),
+        qc.invalidateQueries({ queryKey: ["chargers"] }),
+      ]);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to delete charger");
+    } finally {
+      setDeletingId(null);
+      setConfirmId(null);
+    }
+  };
 
   const myChargers = useQuery({
     queryKey: ["my_chargers", user?.id],
@@ -140,16 +161,43 @@ function Dashboard() {
             </div>
             <div className="mt-4 space-y-3">
               {chargers.map((c) => (
-                <div key={c.id} className="flex items-center gap-3 rounded-xl border border-border bg-background p-3">
-                  <img src={c.image} alt="" className="h-14 w-14 rounded-lg object-cover" />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{c.name}</div>
-                    <div className="truncate text-xs text-muted-foreground">{c.address}</div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      ₹{c.pricePerKwh}/kWh · {c.powerKw} kW · {c.connectors.join(", ")}
+                <div key={c.id} className="rounded-xl border border-border bg-background p-3">
+                  <div className="flex items-center gap-3">
+                    <img src={c.image} alt="" className="h-14 w-14 rounded-lg object-cover" />
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">{c.name}</div>
+                      <div className="truncate text-xs text-muted-foreground">{c.address}</div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        ₹{c.pricePerKwh}/kWh · {c.powerKw} kW · {c.connectors.join(", ")}
+                      </div>
                     </div>
                   </div>
-                  <Link to="/charger/$id" params={{ id: c.id }} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold">Open</Link>
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    <Link to="/charger/$id" params={{ id: c.id }} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted">Open</Link>
+                    <Link to="/edit/$id" params={{ id: c.id }} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold hover:bg-muted">
+                      <Pencil className="h-3 w-3" /> Edit
+                    </Link>
+                    {confirmId === c.id ? (
+                      <>
+                        <span className="text-xs text-muted-foreground">Delete this listing?</span>
+                        <button
+                          onClick={() => handleDelete(c.id)}
+                          disabled={deletingId === c.id}
+                          className="rounded-full bg-red-600 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-60"
+                        >
+                          {deletingId === c.id ? "Deleting…" : "Confirm"}
+                        </button>
+                        <button onClick={() => setConfirmId(null)} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold">Cancel</button>
+                      </>
+                    ) : (
+                      <button
+                        onClick={() => setConfirmId(c.id)}
+                        className="inline-flex items-center gap-1 rounded-full border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-3 w-3" /> Delete
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
               {chargers.length === 0 && (
