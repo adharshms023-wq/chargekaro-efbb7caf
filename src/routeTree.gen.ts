@@ -16,6 +16,7 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as EditIdRouteImport } from './routes/edit.$id'
 import { Route as ChargerIdRouteImport } from './routes/charger.$id'
 
 const ListRoute = ListRouteImport.update({
@@ -53,6 +54,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EditIdRoute = EditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChargerIdRoute = ChargerIdRouteImport.update({
   id: '/charger/$id',
   path: '/charger/$id',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
+  '/edit/$id': typeof EditIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
+  '/edit/$id': typeof EditIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
   '/charger/$id': typeof ChargerIdRoute
+  '/edit/$id': typeof EditIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/list'
     | '/charger/$id'
+    | '/edit/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/list'
     | '/charger/$id'
+    | '/edit/$id'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/explore'
     | '/list'
     | '/charger/$id'
+    | '/edit/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   ExploreRoute: typeof ExploreRoute
   ListRoute: typeof ListRoute
   ChargerIdRoute: typeof ChargerIdRoute
+  EditIdRoute: typeof EditIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/edit/$id': {
+      id: '/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/edit/$id'
+      preLoaderRoute: typeof EditIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/charger/$id': {
       id: '/charger/$id'
       path: '/charger/$id'
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExploreRoute: ExploreRoute,
   ListRoute: ListRoute,
   ChargerIdRoute: ChargerIdRoute,
+  EditIdRoute: EditIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
