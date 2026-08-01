@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as StationsRouteImport } from './routes/stations'
 import { Route as ListRouteImport } from './routes/list'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -19,6 +20,11 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as EditIdRouteImport } from './routes/edit.$id'
 import { Route as ChargerIdRouteImport } from './routes/charger.$id'
 
+const StationsRoute = StationsRouteImport.update({
+  id: '/stations',
+  path: '/stations',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ListRoute = ListRouteImport.update({
   id: '/list',
   path: '/list',
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
+  '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
 }
@@ -84,6 +91,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
+  '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
 }
@@ -96,6 +104,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
+  '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
 }
@@ -109,6 +118,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/explore'
     | '/list'
+    | '/stations'
     | '/charger/$id'
     | '/edit/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/explore'
     | '/list'
+    | '/stations'
     | '/charger/$id'
     | '/edit/$id'
   id:
@@ -131,6 +142,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/explore'
     | '/list'
+    | '/stations'
     | '/charger/$id'
     | '/edit/$id'
   fileRoutesById: FileRoutesById
@@ -143,12 +155,20 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ExploreRoute: typeof ExploreRoute
   ListRoute: typeof ListRoute
+  StationsRoute: typeof StationsRoute
   ChargerIdRoute: typeof ChargerIdRoute
   EditIdRoute: typeof EditIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/stations': {
+      id: '/stations'
+      path: '/stations'
+      fullPath: '/stations'
+      preLoaderRoute: typeof StationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/list': {
       id: '/list'
       path: '/list'
@@ -223,6 +243,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ExploreRoute: ExploreRoute,
   ListRoute: ListRoute,
+  StationsRoute: StationsRoute,
   ChargerIdRoute: ChargerIdRoute,
   EditIdRoute: EditIdRoute,
 }
