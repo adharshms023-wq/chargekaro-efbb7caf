@@ -277,6 +277,90 @@ export type Database = {
           },
         ]
       }
+      stations: {
+        Row: {
+          address: string
+          availability: string | null
+          brands: string[]
+          charging_type: string | null
+          city: string | null
+          connectors: string[]
+          contact_phone: string | null
+          created_at: string
+          district: string | null
+          id: string
+          is_published: boolean
+          lat: number
+          lng: number
+          max_power_kw: number | null
+          name: string
+          operating_hours: string | null
+          osm_id: number | null
+          photos: string[]
+          pricing: string | null
+          provider: string | null
+          provider_logo: string | null
+          rating: number | null
+          review_count: number
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          address: string
+          availability?: string | null
+          brands?: string[]
+          charging_type?: string | null
+          city?: string | null
+          connectors?: string[]
+          contact_phone?: string | null
+          created_at?: string
+          district?: string | null
+          id?: string
+          is_published?: boolean
+          lat: number
+          lng: number
+          max_power_kw?: number | null
+          name: string
+          operating_hours?: string | null
+          osm_id?: number | null
+          photos?: string[]
+          pricing?: string | null
+          provider?: string | null
+          provider_logo?: string | null
+          rating?: number | null
+          review_count?: number
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          address?: string
+          availability?: string | null
+          brands?: string[]
+          charging_type?: string | null
+          city?: string | null
+          connectors?: string[]
+          contact_phone?: string | null
+          created_at?: string
+          district?: string | null
+          id?: string
+          is_published?: boolean
+          lat?: number
+          lng?: number
+          max_power_kw?: number | null
+          name?: string
+          operating_hours?: string | null
+          osm_id?: number | null
+          photos?: string[]
+          pricing?: string | null
+          provider?: string | null
+          provider_logo?: string | null
+          rating?: number | null
+          review_count?: number
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
