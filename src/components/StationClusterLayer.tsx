@@ -25,22 +25,22 @@ const clusterIcon = (cluster: L.MarkerCluster) => {
   const size = count < 10 ? 36 : count < 50 ? 44 : 52;
   return L.divIcon({
     className: "",
-    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;display:grid;place-items:center;background:rgba(0,230,118,.9);border:3px solid rgba(255,255,255,.9);box-shadow:0 6px 16px rgba(0,0,0,.25);color:#0D1117;font-weight:800;font-size:${count > 99 ? 12 : 13}px">${count}</div>`,
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 30%, rgba(0,230,118,.98), rgba(0,188,212,.92));border:3px solid rgba(255,255,255,.55);box-shadow:0 8px 22px rgba(0,230,118,.35);color:#0D1117;font-weight:800;font-size:${count > 99 ? 12 : 13}px">${count}</div>`,
     iconSize: [size, size],
   });
 };
 
 const popupHtml = (s: Station) => `
-  <div style="min-width:210px">
-    <div style="font-weight:600;font-size:14px">${escapeHtml(s.name)}</div>
-    ${s.provider ? `<div style="font-size:12px;color:#666">${escapeHtml(s.provider)}</div>` : ""}
-    <div style="font-size:12px;color:#666">${escapeHtml(s.address)}</div>
-    <div style="font-size:12px;margin-top:4px">${escapeHtml(
-      [s.chargingType, s.maxPowerKw ? `${s.maxPowerKw} kW` : null, s.connectors.join(", ") || null]
+  <div style="min-width:216px">
+    <div class="ck-pop-title">${escapeHtml(s.name)}</div>
+    ${s.provider ? `<div class="ck-pop-sub">${escapeHtml(s.provider)}</div>` : ""}
+    <div class="ck-pop-sub">${escapeHtml(s.address)}</div>
+    <div class="ck-pop-meta">${escapeHtml(
+      [s.chargingType, s.maxPowerKw ? `${s.maxPowerKw} kW` : null, s.connectors.join(" · ") || null]
         .filter(Boolean)
-        .join(" · "),
+        .join("  •  ") || "Charging station",
     )}</div>
-    <a href="${navigationLink(s)}" target="_blank" rel="noreferrer" style="display:inline-block;margin-top:6px;background:#00E676;color:#0D1117;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:600;text-decoration:none">Navigate</a>
+    <a class="ck-pop-btn" href="${navigationLink(s)}" target="_blank" rel="noreferrer">Navigate →</a>
   </div>`;
 
 interface Props {

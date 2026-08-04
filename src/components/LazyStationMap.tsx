@@ -8,6 +8,7 @@ interface Props {
   stations: Station[];
   height?: string;
   onSelect?: (id: string) => void;
+  fitBounds?: boolean;
 }
 
 const Fallback = () => (

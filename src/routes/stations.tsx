@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { MapPin, Navigation, Phone, Clock, Zap, Search, Globe, Filter } from "lucide-react";
+import {
+  MapPin, Navigation, Phone, Clock, Zap, Search, Globe, SlidersHorizontal,
+  X, Map as MapIcon, List as ListIcon, Star, BatteryCharging, Building2,
+} from "lucide-react";
 import { useStations } from "@/lib/stations-store";
 import {
   CONNECTOR_TYPES,
@@ -20,7 +23,7 @@ export const Route = createFileRoute("/stations")({
       {
         name: "description",
         content:
-          "Browse real EV charging stations across all Kerala districts. Filter by district, provider, connector type, fast charging and 24x7 availability, with map view and Google Maps navigation.",
+          "Browse real EV charging stations across all Kerala districts. Filter by district, provider, connector type, fast charging and 24x7 availability, with a live map and Google Maps navigation.",
       },
       { property: "og:title", content: "EV Charging Stations in Kerala | ChargeKaro" },
       {
@@ -37,8 +40,10 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   return (
     <button
       onClick={onClick}
-      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-colors ${
-        active ? "border-primary bg-primary/15 text-primary" : "border-border text-foreground/70 hover:text-foreground"
+      className={`rounded-full border px-3 py-1.5 text-xs font-semibold transition-all active:scale-95 ${
+        active
+          ? "border-primary/40 bg-primary/15 text-primary shadow-sm shadow-primary/20"
+          : "border-border bg-background/60 text-foreground/70 hover:border-primary/30 hover:text-foreground"
       }`}
     >
       {children}
@@ -46,9 +51,45 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
-function StationCard({ s }: { s: Station }) {
+function Stat({ icon: Icon, value, label }: { icon: typeof Zap; value: string | number; label: string }) {
   return (
-    <article className="glass rounded-2xl border border-border/60 p-4 transition-transform hover:-translate-y-0.5">
+    <div className="glass flex items-center gap-3 rounded-2xl px-4 py-3">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+        <Icon className="h-4.5 w-4.5" />
+      </span>
+      <div className="min-w-0">
+        <p className="text-lg font-black leading-none">{value}</p>
+        <p className="truncate text-[11px] text-muted-foreground">{label}</p>
+      </div>
+    </div>
+  );
+}
+
+function CardSkeleton() {
+  return (
+    <div className="glass animate-pulse rounded-2xl border border-border/60 p-4">
+      <div className="flex gap-3">
+        <div className="h-10 w-10 rounded-xl bg-muted" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 w-2/3 rounded bg-muted" />
+          <div className="h-2.5 w-1/3 rounded bg-muted" />
+        </div>
+      </div>
+      <div className="mt-4 h-2.5 w-full rounded bg-muted" />
+      <div className="mt-2 h-2.5 w-4/5 rounded bg-muted" />
+      <div className="mt-4 h-8 w-full rounded-full bg-muted" />
+    </div>
+  );
+}
+
+function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onSelect: () => void }) {
+  return (
+    <article
+      onClick={onSelect}
+      className={`glass group cursor-pointer rounded-2xl border p-4 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10 ${
+        active ? "border-primary/50 ring-2 ring-primary/30" : "border-border/60"
+      }`}
+    >
       <div className="flex items-start gap-3">
         {s.providerLogo ? (
           <img src={s.providerLogo} alt={`${s.provider ?? "Provider"} logo`} className="h-10 w-10 rounded-xl object-contain" loading="lazy" />
@@ -58,7 +99,7 @@ function StationCard({ s }: { s: Station }) {
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-bold">{s.name}</h3>
+          <h3 className="truncate text-sm font-bold group-hover:text-primary">{s.name}</h3>
           <p className="truncate text-xs text-muted-foreground">{s.provider ?? "Independent operator"}</p>
         </div>
         {s.chargingType && (
@@ -77,19 +118,25 @@ function StationCard({ s }: { s: Station }) {
         {s.maxPowerKw && (
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">{s.maxPowerKw} kW</span>
         )}
+        {isFastCharging(s) && (
+          <span className="rounded-full bg-accent/15 px-2 py-0.5 text-[10px] font-bold text-accent">Fast</span>
+        )}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
         {s.operatingHours && (
           <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {s.operatingHours}</span>
         )}
+        {s.rating != null && (
+          <span className="inline-flex items-center gap-1"><Star className="h-3.5 w-3.5 fill-current" /> {s.rating}</span>
+        )}
         {s.contactPhone && (
-          <a href={`tel:${s.contactPhone}`} className="inline-flex items-center gap-1 hover:text-foreground">
+          <a href={`tel:${s.contactPhone}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 hover:text-foreground">
             <Phone className="h-3.5 w-3.5" /> {s.contactPhone}
           </a>
         )}
         {s.website && (
-          <a href={s.website} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-foreground">
+          <a href={s.website} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 hover:text-foreground">
             <Globe className="h-3.5 w-3.5" /> Website
           </a>
         )}
@@ -101,6 +148,7 @@ function StationCard({ s }: { s: Station }) {
         href={navigationLink(s)}
         target="_blank"
         rel="noreferrer"
+        onClick={(e) => e.stopPropagation()}
         className="mt-4 inline-flex w-full items-center justify-center gap-1.5 rounded-full gradient-primary px-4 py-2 text-xs font-bold shadow-lg shadow-primary/20"
       >
         <Navigation className="h-3.5 w-3.5" /> Navigate
@@ -112,13 +160,15 @@ function StationCard({ s }: { s: Station }) {
 function StationsPage() {
   const { stations, isLoading, error } = useStations();
   const [q, setQ] = useState("");
-  const [district, setDistrict] = useState<string>("All");
-  const [provider, setProvider] = useState<string>("All");
-  const [connector, setConnector] = useState<string>("All");
+  const [district, setDistrict] = useState("All");
+  const [provider, setProvider] = useState("All");
+  const [connector, setConnector] = useState("All");
   const [fastOnly, setFastOnly] = useState(false);
   const [openNow, setOpenNow] = useState(false);
   const [availableOnly, setAvailableOnly] = useState(false);
-  const [limit, setLimit] = useState(24);
+  const [limit, setLimit] = useState(18);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [mobileView, setMobileView] = useState<"list" | "map">("list");
 
   const providers = useMemo(
     () => Array.from(new Set(stations.map((s) => s.provider).filter(Boolean) as string[])).sort(),
@@ -141,25 +191,55 @@ function StationsPage() {
     });
   }, [stations, q, district, provider, connector, fastOnly, openNow, availableOnly]);
 
+  const activeFilters =
+    (district !== "All" ? 1 : 0) + (provider !== "All" ? 1 : 0) + (connector !== "All" ? 1 : 0) +
+    (fastOnly ? 1 : 0) + (openNow ? 1 : 0) + (availableOnly ? 1 : 0) + (q.trim() ? 1 : 0);
+
+  const reset = () => {
+    setQ(""); setDistrict("All"); setProvider("All"); setConnector("All");
+    setFastOnly(false); setOpenNow(false); setAvailableOnly(false);
+  };
+
+  const dcCount = filtered.filter((s) => isFastCharging(s)).length;
+  const districtCount = new Set(filtered.map((s) => s.district).filter(Boolean)).size;
+
   return (
     <main className="mx-auto max-w-7xl px-4 py-8">
       <header className="mb-6">
-        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Charging Stations in Kerala</h1>
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
+          <BatteryCharging className="h-3.5 w-3.5" /> Kerala charging network
+        </span>
+        <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+          Charging stations across Kerala
+        </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          A live directory of publicly accessible EV charging stations across Kerala. Data is loaded from our database and
-          updated as new stations come online.
+          A live, continuously updated directory of publicly accessible EV charging stations — search, filter and
+          navigate in one tap.
         </p>
+
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <Stat icon={Zap} value={stations.length} label="Stations listed" />
+          <Stat icon={BatteryCharging} value={dcCount} label="Fast charging" />
+          <Stat icon={MapPin} value={districtCount} label="Districts covered" />
+          <Stat icon={Building2} value={providers.length} label="Providers" />
+        </div>
       </header>
 
-      <div className="glass mb-6 rounded-2xl border border-border/60 p-4">
+      {/* Sticky filter bar */}
+      <div className="glass sticky top-16 z-30 mb-6 rounded-2xl border border-border/60 p-4 shadow-lg shadow-foreground/5">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search station, city, district or provider"
-            className="w-full min-w-0 rounded-full border border-border bg-background py-2.5 pl-9 pr-4 text-sm outline-none focus:border-primary"
+            className="w-full min-w-0 rounded-full border border-border bg-background py-2.5 pl-9 pr-9 text-sm outline-none focus:border-primary"
           />
+          {q && (
+            <button onClick={() => setQ("")} aria-label="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
 
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
@@ -178,45 +258,89 @@ function StationsPage() {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground"><Filter className="h-3.5 w-3.5" /> Quick filters</span>
+          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+            <SlidersHorizontal className="h-3.5 w-3.5" /> Quick filters
+          </span>
           <Chip active={fastOnly} onClick={() => setFastOnly((v) => !v)}>Fast charging</Chip>
           <Chip active={openNow} onClick={() => setOpenNow((v) => !v)}>Open 24×7</Chip>
           <Chip active={availableOnly} onClick={() => setAvailableOnly((v) => !v)}>Available now</Chip>
+          {activeFilters > 0 && (
+            <button onClick={reset} className="ml-auto inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
+              <X className="h-3.5 w-3.5" /> Clear {activeFilters}
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="mb-6 h-[420px]">
-        <LazyStationMap stations={filtered} />
+      {error && (
+        <p className="mb-4 rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+          Could not load stations: {error.message}
+        </p>
+      )}
+
+      {/* Mobile view switch */}
+      <div className="mb-4 flex gap-1 rounded-full border border-border p-1 lg:hidden">
+        {(["list", "map"] as const).map((v) => (
+          <button
+            key={v}
+            onClick={() => setMobileView(v)}
+            className={`flex flex-1 items-center justify-center gap-1.5 rounded-full py-2 text-xs font-bold capitalize transition-colors ${
+              mobileView === v ? "gradient-primary shadow-md shadow-primary/20" : "text-muted-foreground"
+            }`}
+          >
+            {v === "list" ? <ListIcon className="h-3.5 w-3.5" /> : <MapIcon className="h-3.5 w-3.5" />} {v}
+          </button>
+        ))}
       </div>
 
-      {error && <p className="text-sm text-destructive">Could not load stations: {error.message}</p>}
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">Loading stations…</p>
-      ) : (
-        <>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,520px)]">
+        {/* Results */}
+        <section className={mobileView === "map" ? "hidden lg:block" : ""}>
           <p className="mb-3 text-sm text-muted-foreground">
-            {filtered.length} station{filtered.length === 1 ? "" : "s"} found
+            {isLoading ? "Loading stations…" : `${filtered.length} station${filtered.length === 1 ? "" : "s"} found`}
           </p>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filtered.slice(0, limit).map((s) => <StationCard key={s.id} s={s} />)}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)
+              : filtered.slice(0, limit).map((s) => (
+                  <StationCard key={s.id} s={s} active={selected === s.id} onSelect={() => setSelected(s.id)} />
+                ))}
           </div>
-          {filtered.length > limit && (
+
+          {!isLoading && filtered.length > limit && (
             <div className="mt-6 text-center">
               <button
-                onClick={() => setLimit((l) => l + 24)}
+                onClick={() => setLimit((l) => l + 18)}
                 className="rounded-full border border-border px-5 py-2 text-sm font-semibold hover:bg-muted"
               >
-                Load more
+                Load {Math.min(18, filtered.length - limit)} more
               </button>
             </div>
           )}
-          {filtered.length === 0 && (
-            <p className="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-              No stations match these filters yet.
-            </p>
+
+          {!isLoading && filtered.length === 0 && (
+            <div className="rounded-2xl border border-dashed border-border p-10 text-center">
+              <p className="text-sm text-muted-foreground">No stations match these filters yet.</p>
+              <button onClick={reset} className="mt-3 rounded-full gradient-primary px-4 py-2 text-xs font-bold">
+                Clear filters
+              </button>
+            </div>
           )}
-        </>
-      )}
+        </section>
+
+        {/* Map */}
+        <aside className={mobileView === "list" ? "hidden lg:block" : ""}>
+          <div className="lg:sticky lg:top-64">
+            <div className="h-[60vh] min-h-[380px] lg:h-[calc(100vh-19rem)]">
+              <LazyStationMap stations={filtered} onSelect={setSelected} />
+            </div>
+            <p className="mt-2 text-center text-[11px] text-muted-foreground">
+              Pins cluster automatically · tap a pin for details and navigation
+            </p>
+          </div>
+        </aside>
+      </div>
     </main>
   );
 }
