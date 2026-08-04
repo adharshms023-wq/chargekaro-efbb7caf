@@ -273,3 +273,108 @@
   background: linear-gradient(135deg, oklch(0.82 0.22 152), oklch(0.72 0.18 200) 55%, oklch(0.66 0.2 260));
   color: white;
 }
+
+/* ---------------- Leaflet map theming (light + dark) ---------------- */
+.leaflet-container {
+  background: var(--muted);
+  font-family: var(--font-sans);
+}
+
+.leaflet-control-zoom,
+.leaflet-bar {
+  border: none !important;
+  border-radius: var(--radius-xl) !important;
+  overflow: hidden;
+  box-shadow: var(--shadow-clay-sm) !important;
+}
+
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  backdrop-filter: blur(12px);
+  color: var(--foreground);
+  border-bottom-color: color-mix(in oklab, var(--foreground) 10%, transparent);
+  width: 34px;
+  height: 34px;
+  line-height: 34px;
+  font-weight: 600;
+}
+
+.leaflet-bar a:hover {
+  background: color-mix(in oklab, var(--primary) 18%, var(--card));
+  color: var(--foreground);
+}
+
+.leaflet-control-attribution {
+  background: color-mix(in oklab, var(--card) 70%, transparent) !important;
+  backdrop-filter: blur(8px);
+  color: color-mix(in oklab, var(--foreground) 60%, transparent) !important;
+  border-radius: var(--radius-md) 0 0 0;
+  font-size: 10px;
+}
+
+.leaflet-control-attribution a {
+  color: color-mix(in oklab, var(--foreground) 75%, transparent) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  backdrop-filter: blur(18px) saturate(160%);
+  color: var(--foreground);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-clay);
+  border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
+}
+
+.leaflet-popup-content {
+  margin: 14px 16px;
+}
+
+.leaflet-popup-tip {
+  background: color-mix(in oklab, var(--card) 92%, transparent);
+  box-shadow: none;
+}
+
+.leaflet-popup-close-button {
+  color: color-mix(in oklab, var(--foreground) 55%, transparent) !important;
+  font-size: 20px !important;
+  padding: 8px 8px 0 0 !important;
+}
+
+.ck-pop-title {
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.ck-pop-sub {
+  font-size: 12px;
+  color: color-mix(in oklab, var(--foreground) 60%, transparent);
+  margin-top: 2px;
+}
+
+.ck-pop-meta {
+  font-size: 11px;
+  font-weight: 600;
+  margin-top: 8px;
+  color: var(--primary);
+  letter-spacing: 0.02em;
+}
+
+.ck-pop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none !important;
+  color: white !important;
+  background: linear-gradient(135deg, oklch(0.82 0.22 152), oklch(0.72 0.18 200) 55%, oklch(0.66 0.2 260));
+}
+
+.leaflet-tile-pane {
+  transition: opacity 200ms ease;
+}
