@@ -3,18 +3,22 @@ import { useMemo, useState } from "react";
 import {
   MapPin, Navigation, Phone, Clock, Zap, Search, Globe, SlidersHorizontal,
   X, Map as MapIcon, List as ListIcon, Star, BatteryCharging, Building2,
+  LocateFixed, Loader2,
 } from "lucide-react";
 import { useStations } from "@/lib/stations-store";
 import { useChargers } from "@/lib/chargers-store";
 import {
   CONNECTOR_TYPES,
   KERALA_DISTRICTS,
+  distanceKm,
+  formatDistance,
   isFastCharging,
   isOpen247,
-  navigationLink,
+  navigationLinkFrom,
   type Station,
 } from "@/data/stations";
 import { LazyStationMap } from "@/components/LazyStationMap";
+import { useGeolocation, type Coords } from "@/hooks/use-geolocation";
 
 export const Route = createFileRoute("/stations")({
   component: StationsPage,
@@ -83,7 +87,19 @@ function CardSkeleton() {
   );
 }
 
-function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onSelect: () => void }) {
+function StationCard({
+  s,
+  active,
+  onSelect,
+  distance,
+  origin,
+}: {
+  s: Station;
+  active: boolean;
+  onSelect: () => void;
+  distance?: number;
+  origin?: Coords | null;
+}) {
   return (
     <article
       onClick={onSelect}
@@ -107,6 +123,12 @@ function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onS
           <span className="rounded-full bg-secondary/15 px-2 py-1 text-[10px] font-bold text-secondary">{s.chargingType}</span>
         )}
       </div>
+
+      {distance != null && (
+        <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-secondary/15 px-2 py-0.5 text-[10px] font-bold text-secondary">
+          <Navigation className="h-3 w-3" /> {formatDistance(distance)} away
+        </p>
+      )}
 
       <p className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground">
         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span className="line-clamp-2">{s.address}</span>
@@ -146,7 +168,7 @@ function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onS
       </div>
 
       <a
-        href={navigationLink(s)}
+        href={navigationLinkFrom(s, origin)}
         target="_blank"
         rel="noreferrer"
         onClick={(e) => e.stopPropagation()}
