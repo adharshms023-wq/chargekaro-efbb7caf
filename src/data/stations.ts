@@ -45,6 +45,8 @@ export interface Station {
   availability: string | null;
   rating: number | null;
   reviewCount: number;
+  /** "public" = directory station, "community" = user-listed charger/place. */
+  source?: "public" | "community";
 }
 
 export interface StationRow {

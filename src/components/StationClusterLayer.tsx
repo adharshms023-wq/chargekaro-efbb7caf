@@ -10,7 +10,8 @@ const escapeHtml = (v: string) =>
   v.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 const pinIcon = (s: Station) => {
-  const color = s.chargingType?.includes("DC") ? "#00E676" : "#2979FF";
+  const color =
+    s.source === "community" ? "#FF6E40" : s.chargingType?.includes("DC") ? "#00E676" : "#2979FF";
   return L.divIcon({
     className: "",
     html: `<div style="background:${color};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.25);border:2px solid white"><div style="transform:rotate(45deg);color:white;font-weight:700;font-size:12px">⚡</div></div>`,
@@ -75,12 +76,14 @@ export function StationClusterLayer({ stations, onSelect }: Props) {
   useEffect(() => {
     const group = groupRef.current;
     if (!group) return;
-    const markers = stations.map((s) => {
-      const m = L.marker([s.lat, s.lng], { icon: pinIcon(s) });
-      m.bindPopup(() => popupHtml(s));
-      m.on("click", () => selectRef.current?.(s.id));
-      return m;
-    });
+    const markers = stations
+      .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+      .map((s) => {
+        const m = L.marker([s.lat, s.lng], { icon: pinIcon(s) });
+        m.bindPopup(() => popupHtml(s));
+        m.on("click", () => selectRef.current?.(s.id));
+        return m;
+      });
     group.clearLayers();
     group.addLayers(markers);
   }, [stations]);
