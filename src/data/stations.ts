@@ -111,3 +111,31 @@ export function isOpen247(s: Station) {
   const h = (s.operatingHours ?? "").toLowerCase().replace(/\s/g, "");
   return h === "24/7" || h === "24x7" || h.includes("00:00-24:00");
 }
+
+/** Great-circle distance in kilometres between two coordinates. */
+export function distanceKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+) {
+  const R = 6371;
+  const toRad = (v: number) => (v * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const h =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+export function formatDistance(km: number) {
+  return km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(km < 10 ? 1 : 0)} km`;
+}
+
+/** Directions link that starts from the user's live location when available. */
+export function navigationLinkFrom(
+  s: Pick<Station, "lat" | "lng" | "name">,
+  origin?: { lat: number; lng: number } | null,
+) {
+  const base = `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`;
+  return origin ? `${base}&origin=${origin.lat},${origin.lng}` : base;
+}
