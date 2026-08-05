@@ -24,6 +24,7 @@ function EditCharger() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
+  const phone = useChargerPhone(id);
   const q = useQuery({
     queryKey: ["charger", id],
     enabled: !!user,
@@ -71,7 +72,7 @@ function EditCharger() {
         <h1 className="text-3xl font-bold tracking-tight">Edit your charger</h1>
         <p className="mt-2 text-muted-foreground">Update the details, pricing or availability of this listing.</p>
       </div>
-      <ChargerForm mode="edit" ownerId={user.id} chargerId={charger.id} initial={charger} onDone={() => navigate({ to: "/dashboard" })} />
+      <ChargerForm mode="edit" ownerId={user.id} chargerId={charger.id} initial={{ ...charger, phone: phone ?? undefined }} onDone={() => navigate({ to: "/dashboard" })} />
     </div>
   );
 }
