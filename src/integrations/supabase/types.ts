@@ -143,13 +143,6 @@ export type Database = {
             referencedRelation: "chargers"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "charging_sessions_charger_id_fkey"
-            columns: ["charger_id"]
-            isOneToOne: false
-            referencedRelation: "chargers_public"
-            referencedColumns: ["id"]
-          },
         ]
       }
       favorites: {
@@ -174,13 +167,6 @@ export type Database = {
             columns: ["charger_id"]
             isOneToOne: false
             referencedRelation: "chargers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "favorites_charger_id_fkey"
-            columns: ["charger_id"]
-            isOneToOne: false
-            referencedRelation: "chargers_public"
             referencedColumns: ["id"]
           },
         ]
@@ -222,13 +208,6 @@ export type Database = {
             columns: ["charger_id"]
             isOneToOne: false
             referencedRelation: "chargers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "live_updates_charger_id_fkey"
-            columns: ["charger_id"]
-            isOneToOne: false
-            referencedRelation: "chargers_public"
             referencedColumns: ["id"]
           },
         ]
@@ -294,13 +273,6 @@ export type Database = {
             columns: ["charger_id"]
             isOneToOne: false
             referencedRelation: "chargers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_charger_id_fkey"
-            columns: ["charger_id"]
-            isOneToOne: false
-            referencedRelation: "chargers_public"
             referencedColumns: ["id"]
           },
         ]
@@ -391,120 +363,7 @@ export type Database = {
       }
     }
     Views: {
-      chargers_public: {
-        Row: {
-          address: string | null
-          city: string | null
-          connectors: string[] | null
-          created_at: string | null
-          description: string | null
-          facilities: string[] | null
-          hours: string | null
-          id: string | null
-          image: string | null
-          lat: number | null
-          lng: number | null
-          name: string | null
-          owner_id: string | null
-          owner_name: string | null
-          payhip_mode: Database["public"]["Enums"]["payhip_mode"] | null
-          payhip_product_url: string | null
-          power_kw: number | null
-          price_per_kwh: number | null
-          rules: string | null
-          source: Database["public"]["Enums"]["charger_source"] | null
-          speed: Database["public"]["Enums"]["charging_speed"] | null
-        }
-        Insert: {
-          address?: string | null
-          city?: string | null
-          connectors?: string[] | null
-          created_at?: string | null
-          description?: string | null
-          facilities?: string[] | null
-          hours?: string | null
-          id?: string | null
-          image?: string | null
-          lat?: number | null
-          lng?: number | null
-          name?: string | null
-          owner_id?: string | null
-          owner_name?: string | null
-          payhip_mode?: Database["public"]["Enums"]["payhip_mode"] | null
-          payhip_product_url?: string | null
-          power_kw?: number | null
-          price_per_kwh?: number | null
-          rules?: string | null
-          source?: Database["public"]["Enums"]["charger_source"] | null
-          speed?: Database["public"]["Enums"]["charging_speed"] | null
-        }
-        Update: {
-          address?: string | null
-          city?: string | null
-          connectors?: string[] | null
-          created_at?: string | null
-          description?: string | null
-          facilities?: string[] | null
-          hours?: string | null
-          id?: string | null
-          image?: string | null
-          lat?: number | null
-          lng?: number | null
-          name?: string | null
-          owner_id?: string | null
-          owner_name?: string | null
-          payhip_mode?: Database["public"]["Enums"]["payhip_mode"] | null
-          payhip_product_url?: string | null
-          power_kw?: number | null
-          price_per_kwh?: number | null
-          rules?: string | null
-          source?: Database["public"]["Enums"]["charger_source"] | null
-          speed?: Database["public"]["Enums"]["charging_speed"] | null
-        }
-        Relationships: []
-      }
-      reviews_public: {
-        Row: {
-          author_name: string | null
-          charger_id: string | null
-          comment: string | null
-          created_at: string | null
-          id: string | null
-          rating: number | null
-        }
-        Insert: {
-          author_name?: string | null
-          charger_id?: string | null
-          comment?: string | null
-          created_at?: string | null
-          id?: string | null
-          rating?: number | null
-        }
-        Update: {
-          author_name?: string | null
-          charger_id?: string | null
-          comment?: string | null
-          created_at?: string | null
-          id?: string | null
-          rating?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "reviews_charger_id_fkey"
-            columns: ["charger_id"]
-            isOneToOne: false
-            referencedRelation: "chargers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "reviews_charger_id_fkey"
-            columns: ["charger_id"]
-            isOneToOne: false
-            referencedRelation: "chargers_public"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
+      [_ in never]: never
     }
     Functions: {
       get_charger_phone: { Args: { _charger_id: string }; Returns: string }
