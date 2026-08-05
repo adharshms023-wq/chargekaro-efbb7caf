@@ -28,9 +28,26 @@ function FitToStations({ stations }: { stations: Station[] }) {
   );
 
   useEffect(() => {
-    if (!stations.length) return;
-    const bounds = L.latLngBounds(stations.map((s) => [s.lat, s.lng] as [number, number]));
-    map.flyToBounds(bounds, { padding: [48, 48], maxZoom: 13, duration: 0.6 });
+    const pts = stations
+      .filter((s) => Number.isFinite(s.lat) && Number.isFinite(s.lng))
+      .map((s) => [s.lat, s.lng] as [number, number]);
+    if (!pts.length) return;
+
+    const bounds = L.latLngBounds(pts);
+    if (!bounds.isValid()) return;
+
+    const id = window.setTimeout(() => {
+      const size = map.getSize();
+      if (!size.x || !size.y) return;
+      try {
+        map.invalidateSize();
+        map.flyToBounds(bounds, { padding: [48, 48], maxZoom: 13, duration: 0.6 });
+      } catch {
+        /* map not ready yet — ignore */
+      }
+    }, 0);
+
+    return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, map]);
 
