@@ -378,3 +378,9 @@
 .leaflet-tile-pane {
   transition: opacity 200ms ease;
 }
+
+/* Pulsing halo for the visitor's live location marker on the map */
+@keyframes ck-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}

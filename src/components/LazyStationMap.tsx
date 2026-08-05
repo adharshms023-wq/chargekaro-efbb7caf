@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { ClientOnly } from "./ClientOnly";
 import type { Station } from "@/data/stations";
+import type { Coords } from "@/hooks/use-geolocation";
 
 const StationMap = lazy(() => import("./StationMap").then((m) => ({ default: m.StationMap })));
 
@@ -9,6 +10,7 @@ interface Props {
   height?: string;
   onSelect?: (id: string) => void;
   fitBounds?: boolean;
+  userLocation?: Coords | null;
 }
 
 const Fallback = () => (

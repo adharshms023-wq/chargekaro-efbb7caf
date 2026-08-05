@@ -3,18 +3,22 @@ import { useMemo, useState } from "react";
 import {
   MapPin, Navigation, Phone, Clock, Zap, Search, Globe, SlidersHorizontal,
   X, Map as MapIcon, List as ListIcon, Star, BatteryCharging, Building2,
+  LocateFixed, Loader2,
 } from "lucide-react";
 import { useStations } from "@/lib/stations-store";
 import { useChargers } from "@/lib/chargers-store";
 import {
   CONNECTOR_TYPES,
   KERALA_DISTRICTS,
+  distanceKm,
+  formatDistance,
   isFastCharging,
   isOpen247,
-  navigationLink,
+  navigationLinkFrom,
   type Station,
 } from "@/data/stations";
 import { LazyStationMap } from "@/components/LazyStationMap";
+import { useGeolocation, type Coords } from "@/hooks/use-geolocation";
 
 export const Route = createFileRoute("/stations")({
   component: StationsPage,
@@ -83,7 +87,19 @@ function CardSkeleton() {
   );
 }
 
-function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onSelect: () => void }) {
+function StationCard({
+  s,
+  active,
+  onSelect,
+  distance,
+  origin,
+}: {
+  s: Station;
+  active: boolean;
+  onSelect: () => void;
+  distance?: number;
+  origin?: Coords | null;
+}) {
   return (
     <article
       onClick={onSelect}
@@ -107,6 +123,12 @@ function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onS
           <span className="rounded-full bg-secondary/15 px-2 py-1 text-[10px] font-bold text-secondary">{s.chargingType}</span>
         )}
       </div>
+
+      {distance != null && (
+        <p className="mt-2 inline-flex items-center gap-1 rounded-full bg-secondary/15 px-2 py-0.5 text-[10px] font-bold text-secondary">
+          <Navigation className="h-3 w-3" /> {formatDistance(distance)} away
+        </p>
+      )}
 
       <p className="mt-3 flex items-start gap-1.5 text-xs text-muted-foreground">
         <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" /> <span className="line-clamp-2">{s.address}</span>
@@ -146,7 +168,7 @@ function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onS
       </div>
 
       <a
-        href={navigationLink(s)}
+        href={navigationLinkFrom(s, origin)}
         target="_blank"
         rel="noreferrer"
         onClick={(e) => e.stopPropagation()}
@@ -171,6 +193,8 @@ function StationsPage() {
   const [limit, setLimit] = useState(18);
   const [selected, setSelected] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const { coords, status: geoStatus, error: geoError, request: locateMe, clear: clearLocation } = useGeolocation();
+  const [radiusKm, setRadiusKm] = useState<number | null>(25);
 
   /** Community-listed chargers/places, normalised so they can share the map. */
   const communityStations = useMemo<Station[]>(
@@ -211,7 +235,7 @@ function StationsPage() {
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
-    return stations.filter((s) => {
+    const list = stations.filter((s) => {
       if (district !== "All" && s.district !== district) return false;
       if (provider !== "All" && s.provider !== provider) return false;
       if (connector !== "All" && !s.connectors.includes(connector)) return false;
@@ -223,7 +247,17 @@ function StationsPage() {
         .filter(Boolean)
         .some((v) => (v as string).toLowerCase().includes(term));
     });
-  }, [stations, q, district, provider, connector, fastOnly, openNow, availableOnly]);
+
+    if (!coords) return list;
+
+    return list
+      .map((s) => ({ s, d: distanceKm(coords, s) }))
+      .filter(({ d }) => radiusKm == null || d <= radiusKm)
+      .sort((a, b) => a.d - b.d)
+      .map(({ s }) => s);
+  }, [stations, q, district, provider, connector, fastOnly, openNow, availableOnly, coords, radiusKm]);
+
+  const distanceOf = (s: Station) => (coords ? distanceKm(coords, s) : undefined);
 
   const activeFilters =
     (district !== "All" ? 1 : 0) + (provider !== "All" ? 1 : 0) + (connector !== "All" ? 1 : 0) +
@@ -304,6 +338,41 @@ function StationsPage() {
             </button>
           )}
         </div>
+
+        {/* Live location */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
+          {!coords ? (
+            <button
+              onClick={locateMe}
+              disabled={geoStatus === "locating"}
+              className="inline-flex items-center gap-1.5 rounded-full gradient-primary px-4 py-2 text-xs font-bold shadow-lg shadow-primary/20 disabled:opacity-70"
+            >
+              {geoStatus === "locating" ? (
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <LocateFixed className="h-3.5 w-3.5" />
+              )}
+              {geoStatus === "locating" ? "Getting your location…" : "Find stations near me"}
+            </button>
+          ) : (
+            <>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+                <LocateFixed className="h-3.5 w-3.5" /> Sorted by distance from you
+              </span>
+              {[5, 10, 25, 50].map((r) => (
+                <Chip key={r} active={radiusKm === r} onClick={() => setRadiusKm(r)}>{r} km</Chip>
+              ))}
+              <Chip active={radiusKm === null} onClick={() => setRadiusKm(null)}>Any distance</Chip>
+              <button
+                onClick={clearLocation}
+                className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-3.5 w-3.5" /> Stop using location
+              </button>
+            </>
+          )}
+          {geoError && <span className="text-xs text-destructive">{geoError}</span>}
+        </div>
       </div>
 
       {error && (
@@ -331,14 +400,25 @@ function StationsPage() {
         {/* Results */}
         <section className={mobileView === "map" ? "hidden lg:block" : ""}>
           <p className="mb-3 text-sm text-muted-foreground">
-            {isLoading ? "Loading stations…" : `${filtered.length} station${filtered.length === 1 ? "" : "s"} found`}
+            {isLoading
+              ? "Loading stations…"
+              : `${filtered.length} station${filtered.length === 1 ? "" : "s"} found${
+                  coords ? (radiusKm ? ` within ${radiusKm} km of you` : " near you") : ""
+                }`}
           </p>
 
           <div className="grid gap-4 sm:grid-cols-2">
             {isLoading
               ? Array.from({ length: 6 }).map((_, i) => <CardSkeleton key={i} />)
               : filtered.slice(0, limit).map((s) => (
-                  <StationCard key={s.id} s={s} active={selected === s.id} onSelect={() => setSelected(s.id)} />
+                  <StationCard
+                    key={s.id}
+                    s={s}
+                    active={selected === s.id}
+                    onSelect={() => setSelected(s.id)}
+                    distance={distanceOf(s)}
+                    origin={coords}
+                  />
                 ))}
           </div>
 
@@ -355,7 +435,11 @@ function StationsPage() {
 
           {!isLoading && filtered.length === 0 && (
             <div className="rounded-2xl border border-dashed border-border p-10 text-center">
-              <p className="text-sm text-muted-foreground">No stations match these filters yet.</p>
+              <p className="text-sm text-muted-foreground">
+                {coords && radiusKm
+                  ? `No stations within ${radiusKm} km of you — try a wider radius.`
+                  : "No stations match these filters yet."}
+              </p>
               <button onClick={reset} className="mt-3 rounded-full gradient-primary px-4 py-2 text-xs font-bold">
                 Clear filters
               </button>
@@ -367,7 +451,11 @@ function StationsPage() {
         <aside className={mobileView === "list" ? "hidden lg:block" : ""}>
           <div className="lg:sticky lg:top-64">
             <div className="h-[60vh] min-h-[380px] lg:h-[calc(100vh-19rem)]">
-              <LazyStationMap stations={[...filtered, ...communityStations]} onSelect={setSelected} />
+              <LazyStationMap
+                stations={[...filtered, ...communityStations]}
+                onSelect={setSelected}
+                userLocation={coords}
+              />
             </div>
             <p className="mt-2 text-center text-[11px] text-muted-foreground">
               Pins cluster automatically · tap a pin for details and navigation
