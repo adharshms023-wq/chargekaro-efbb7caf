@@ -12,6 +12,7 @@ import {
 } from "@/data/chargers";
 import { useFavorites } from "@/lib/favorites";
 import { useLiveUpdates, timeAgo, KIND_LABEL } from "@/lib/live-updates";
+import { useChargerPhone } from "@/lib/chargers-store";
 
 const FACILITY_ICONS: Record<Facility, React.ComponentType<{ className?: string }>> = {
   Restroom: Bath,

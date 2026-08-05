@@ -3,7 +3,7 @@ import {
   ArrowLeft, MapPin, Clock, Zap, Star, Navigation2, Share2, Phone, Heart,
   Coffee, Wifi, Car, Utensils, ShoppingBag, Sofa, Bath, ShieldCheck, Users, IndianRupee,
 } from "lucide-react";
-import { useChargers } from "@/lib/chargers-store";
+import { useChargers, useChargerPhone } from "@/lib/chargers-store";
 import { LazyChargerMap } from "@/components/LazyChargerMap";
 import { RoutePlanner } from "@/components/RoutePlanner";
 import { CostCalculator } from "@/components/CostCalculator";
