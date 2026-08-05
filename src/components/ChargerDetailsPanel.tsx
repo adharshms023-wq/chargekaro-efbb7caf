@@ -179,8 +179,8 @@ export function ChargerDetailsPanel({ charger, onClose }: Props) {
                 <div className="truncate text-sm font-semibold">{c.ownerName ?? "Community Host"}</div>
                 <div className="text-xs text-muted-foreground">Verified community host</div>
               </div>
-              {c.phone && (
-                <a href={`tel:${c.phone.replace(/\s/g, "")}`} className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
+              {phone && (
+                <a href={`tel:${phone.replace(/\s/g, "")}`} className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground">
                   <Phone className="h-4 w-4" />
                 </a>
               )}
