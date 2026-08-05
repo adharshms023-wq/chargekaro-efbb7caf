@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ChargerForm } from "@/components/ChargerForm";
 import { mapDbCharger, type Charger } from "@/data/chargers";
+import { useChargerPhone } from "@/lib/chargers-store";
 
 export const Route = createFileRoute("/edit/$id")({
   head: () => ({
@@ -23,6 +24,7 @@ function EditCharger() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
+  const phone = useChargerPhone(id);
   const q = useQuery({
     queryKey: ["charger", id],
     enabled: !!user,
@@ -30,7 +32,7 @@ function EditCharger() {
       const { data, error } = await supabase
         .from("chargers")
         .select(
-          "id, owner_id, name, address, city, lat, lng, source, power_kw, speed, connectors, price_per_kwh, hours, description, image, phone, owner_name, facilities, rules, payhip_product_url, payhip_mode",
+          "id, owner_id, name, address, city, lat, lng, source, power_kw, speed, connectors, price_per_kwh, hours, description, image, owner_name, facilities, rules, payhip_product_url, payhip_mode",
         )
         .eq("id", id)
         .maybeSingle();
@@ -70,7 +72,7 @@ function EditCharger() {
         <h1 className="text-3xl font-bold tracking-tight">Edit your charger</h1>
         <p className="mt-2 text-muted-foreground">Update the details, pricing or availability of this listing.</p>
       </div>
-      <ChargerForm mode="edit" ownerId={user.id} chargerId={charger.id} initial={charger} onDone={() => navigate({ to: "/dashboard" })} />
+      <ChargerForm mode="edit" ownerId={user.id} chargerId={charger.id} initial={{ ...charger, phone: phone ?? undefined }} onDone={() => navigate({ to: "/dashboard" })} />
     </div>
   );
 }

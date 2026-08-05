@@ -366,7 +366,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_charger_phone: { Args: { _charger_id: string }; Returns: string }
     }
     Enums: {
       charger_source: "public" | "community" | "place"
