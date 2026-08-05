@@ -86,6 +86,19 @@ export function StationMap({ stations, height = "100%", onSelect, fitBounds = tr
 
       {/* subtle vignette so the basemap blends into the app surface */}
       <div className="pointer-events-none absolute inset-0 rounded-3xl ring-1 ring-inset ring-foreground/10" />
+
+      {/* legend */}
+      <div className="glass pointer-events-none absolute left-3 top-3 z-[400] flex flex-col gap-1 rounded-xl border border-border/60 px-3 py-2 text-[10px] font-semibold">
+        <span className="flex items-center gap-1.5">
+          <i className="h-2.5 w-2.5 rounded-full" style={{ background: "#00E676" }} /> DC fast station
+        </span>
+        <span className="flex items-center gap-1.5">
+          <i className="h-2.5 w-2.5 rounded-full" style={{ background: "#2979FF" }} /> AC / standard
+        </span>
+        <span className="flex items-center gap-1.5">
+          <i className="h-2.5 w-2.5 rounded-full" style={{ background: "#FF6E40" }} /> Community listing
+        </span>
+      </div>
     </div>
   );
 }

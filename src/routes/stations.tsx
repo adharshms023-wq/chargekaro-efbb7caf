@@ -5,6 +5,7 @@ import {
   X, Map as MapIcon, List as ListIcon, Star, BatteryCharging, Building2,
 } from "lucide-react";
 import { useStations } from "@/lib/stations-store";
+import { useChargers } from "@/lib/chargers-store";
 import {
   CONNECTOR_TYPES,
   KERALA_DISTRICTS,
@@ -159,6 +160,7 @@ function StationCard({ s, active, onSelect }: { s: Station; active: boolean; onS
 
 function StationsPage() {
   const { stations, isLoading, error } = useStations();
+  const { chargers } = useChargers();
   const [q, setQ] = useState("");
   const [district, setDistrict] = useState("All");
   const [provider, setProvider] = useState("All");
@@ -169,6 +171,38 @@ function StationsPage() {
   const [limit, setLimit] = useState(18);
   const [selected, setSelected] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
+
+  /** Community-listed chargers/places, normalised so they can share the map. */
+  const communityStations = useMemo<Station[]>(
+    () =>
+      chargers
+        .filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng))
+        .map((c) => ({
+          id: c.id,
+          name: c.name,
+          provider: c.ownerName ?? "Community host",
+          providerLogo: null,
+          address: c.address,
+          district: null,
+          city: c.city ?? null,
+          lat: c.lat,
+          lng: c.lng,
+          connectors: c.connectors ?? [],
+          chargingType: c.speed === "fast" ? "DC" : "AC",
+          maxPowerKw: c.powerKw ?? null,
+          operatingHours: c.hours ?? null,
+          contactPhone: c.phone ?? null,
+          brands: [],
+          pricing: c.pricePerKwh ? `₹${c.pricePerKwh}/kWh` : null,
+          photos: c.image ? [c.image] : [],
+          website: null,
+          availability: null,
+          rating: c.rating ?? null,
+          reviewCount: c.reviewCount ?? 0,
+          source: "community" as const,
+        })),
+    [chargers],
+  );
 
   const providers = useMemo(
     () => Array.from(new Set(stations.map((s) => s.provider).filter(Boolean) as string[])).sort(),
@@ -333,7 +367,7 @@ function StationsPage() {
         <aside className={mobileView === "list" ? "hidden lg:block" : ""}>
           <div className="lg:sticky lg:top-64">
             <div className="h-[60vh] min-h-[380px] lg:h-[calc(100vh-19rem)]">
-              <LazyStationMap stations={filtered} onSelect={setSelected} />
+              <LazyStationMap stations={[...filtered, ...communityStations]} onSelect={setSelected} />
             </div>
             <p className="mt-2 text-center text-[11px] text-muted-foreground">
               Pins cluster automatically · tap a pin for details and navigation
