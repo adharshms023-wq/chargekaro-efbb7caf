@@ -37,6 +37,7 @@ export const Route = createFileRoute("/charger/$id")({
 function ChargerDetail() {
   const { id } = Route.useParams();
   const { chargers, isLoading } = useChargers();
+  const phone = useChargerPhone(id);
   const c = chargers.find((x) => x.id === id);
   if (!c) {
     if (isLoading) {
@@ -156,8 +157,8 @@ function ChargerDetail() {
                     </div>
                     <div className="text-xs text-muted-foreground">Verified host · usually responds within 1 hour</div>
                   </div>
-                  {c.phone && (
-                    <a href={`tel:${c.phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
+                  {phone && (
+                    <a href={`tel:${phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-1 rounded-full bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
                       <Phone className="h-3 w-3" /> Call
                     </a>
                   )}
@@ -247,9 +248,9 @@ function ChargerDetail() {
                   <Share2 className="h-4 w-4" /> Share
                 </button>
               </div>
-              {c.phone && (
-                <a href={`tel:${c.phone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-semibold">
-                  <Phone className="h-4 w-4" /> {c.phone}
+              {phone && (
+                <a href={`tel:${phone.replace(/\s/g, "")}`} className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-background px-4 py-2.5 text-sm font-semibold">
+                  <Phone className="h-4 w-4" /> {phone}
                 </a>
               )}
             </div>
