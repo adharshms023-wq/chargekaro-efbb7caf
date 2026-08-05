@@ -30,7 +30,7 @@ function EditCharger() {
       const { data, error } = await supabase
         .from("chargers")
         .select(
-          "id, owner_id, name, address, city, lat, lng, source, power_kw, speed, connectors, price_per_kwh, hours, description, image, phone, owner_name, facilities, rules, payhip_product_url, payhip_mode",
+          "id, owner_id, name, address, city, lat, lng, source, power_kw, speed, connectors, price_per_kwh, hours, description, image, owner_name, facilities, rules, payhip_product_url, payhip_mode",
         )
         .eq("id", id)
         .maybeSingle();
