@@ -30,6 +30,7 @@ interface Props {
 }
 
 export function ChargerDetailsPanel({ charger, onClose }: Props) {
+  const phone = useChargerPhone(charger?.id);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
