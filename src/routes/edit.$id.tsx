@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth";
 import { ChargerForm } from "@/components/ChargerForm";
 import { mapDbCharger, type Charger } from "@/data/chargers";
+import { useChargerPhone } from "@/lib/chargers-store";
 
 export const Route = createFileRoute("/edit/$id")({
   head: () => ({
