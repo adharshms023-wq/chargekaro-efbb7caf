@@ -22,6 +22,9 @@ import { useGeolocation, type Coords } from "@/hooks/use-geolocation";
 
 export const Route = createFileRoute("/stations")({
   component: StationsPage,
+  validateSearch: (search: Record<string, unknown>) => ({
+    q: typeof search["q"] === "string" ? (search["q"] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "EV Charging Stations in Kerala | ChargeKaro Directory" },
@@ -183,7 +186,8 @@ function StationCard({
 function StationsPage() {
   const { stations, isLoading, error } = useStations();
   const { chargers } = useChargers();
-  const [q, setQ] = useState("");
+  const { q: initialQ } = Route.useSearch();
+  const [q, setQ] = useState(initialQ ?? "");
   const [district, setDistrict] = useState("All");
   const [provider, setProvider] = useState("All");
   const [connector, setConnector] = useState("All");
