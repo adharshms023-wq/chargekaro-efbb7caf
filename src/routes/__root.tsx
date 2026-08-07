@@ -15,6 +15,7 @@ import { AuthProvider } from "@/lib/auth";
 import { FavoritesProvider } from "@/lib/favorites";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { PwaInstallPrompt } from "@/components/PwaInstallPrompt";
 
 function NotFoundComponent() {
   return (
