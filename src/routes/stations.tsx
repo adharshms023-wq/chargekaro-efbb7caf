@@ -197,6 +197,7 @@ function StationsPage() {
   const [limit, setLimit] = useState(18);
   const [selected, setSelected] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const [showFilters, setShowFilters] = useState(false);
   const { coords, status: geoStatus, error: geoError, request: locateMe, clear: clearLocation } = useGeolocation();
   const [radiusKm, setRadiusKm] = useState<number | null>(25);
 
@@ -297,23 +298,55 @@ function StationsPage() {
         </div>
       </header>
 
-      {/* Sticky filter bar */}
-      <div className="glass sticky top-16 z-30 mb-6 rounded-2xl border border-border/60 p-4 shadow-lg shadow-foreground/5">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search station, city, district or provider"
-            className="w-full min-w-0 rounded-full border border-border bg-background py-2.5 pl-9 pr-9 text-sm outline-none focus:border-primary"
-          />
-          {q && (
-            <button onClick={() => setQ("")} aria-label="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-              <X className="h-4 w-4" />
-            </button>
-          )}
+      {/* Search + filters */}
+      <div className="glass z-30 mb-6 rounded-2xl border border-border/60 p-3 shadow-lg shadow-foreground/5 sm:p-4 lg:sticky lg:top-16">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-2">
+          <div className="relative min-w-0">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search station or city"
+              className="w-full min-w-0 rounded-full border border-border bg-background py-2.5 pl-9 pr-9 text-sm outline-none focus:border-primary"
+            />
+            {q && (
+              <button onClick={() => setQ("")} aria-label="Clear search" className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => setShowFilters((v) => !v)}
+            aria-expanded={showFilters}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2.5 text-xs font-bold transition-colors ${
+              showFilters || activeFilters > 0
+                ? "border-primary/40 bg-primary/15 text-primary"
+                : "border-border bg-background text-foreground/80"
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            <span className="hidden sm:inline">Filters</span>
+            {activeFilters > 0 && (
+              <span className="grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">
+                {activeFilters}
+              </span>
+            )}
+          </button>
         </div>
 
+        {!coords && (
+          <button
+            onClick={locateMe}
+            disabled={geoStatus === "locating"}
+            className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-full gradient-primary px-4 py-2 text-xs font-bold shadow-lg shadow-primary/20 disabled:opacity-70 sm:w-auto"
+          >
+            {geoStatus === "locating" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <LocateFixed className="h-3.5 w-3.5" />}
+            {geoStatus === "locating" ? "Getting your location…" : "Find stations near me"}
+          </button>
+        )}
+
+        {showFilters && (
+        <>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           <select value={district} onChange={(e) => setDistrict(e.target.value)} className="rounded-full border border-border bg-background px-3 py-2 text-sm">
             <option value="All">All districts</option>
@@ -330,9 +363,6 @@ function StationsPage() {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <SlidersHorizontal className="h-3.5 w-3.5" /> Quick filters
-          </span>
           <Chip active={fastOnly} onClick={() => setFastOnly((v) => !v)}>Fast charging</Chip>
           <Chip active={openNow} onClick={() => setOpenNow((v) => !v)}>Open 24×7</Chip>
           <Chip active={availableOnly} onClick={() => setAvailableOnly((v) => !v)}>Available now</Chip>
@@ -342,41 +372,27 @@ function StationsPage() {
             </button>
           )}
         </div>
+        </>
+        )}
 
-        {/* Live location */}
-        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
-          {!coords ? (
+        {coords && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+              <LocateFixed className="h-3.5 w-3.5" /> Near you
+            </span>
+            {[5, 10, 25, 50].map((r) => (
+              <Chip key={r} active={radiusKm === r} onClick={() => setRadiusKm(r)}>{r} km</Chip>
+            ))}
+            <Chip active={radiusKm === null} onClick={() => setRadiusKm(null)}>Any</Chip>
             <button
-              onClick={locateMe}
-              disabled={geoStatus === "locating"}
-              className="inline-flex items-center gap-1.5 rounded-full gradient-primary px-4 py-2 text-xs font-bold shadow-lg shadow-primary/20 disabled:opacity-70"
+              onClick={clearLocation}
+              className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
             >
-              {geoStatus === "locating" ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <LocateFixed className="h-3.5 w-3.5" />
-              )}
-              {geoStatus === "locating" ? "Getting your location…" : "Find stations near me"}
+              <X className="h-3.5 w-3.5" />
             </button>
-          ) : (
-            <>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
-                <LocateFixed className="h-3.5 w-3.5" /> Sorted by distance from you
-              </span>
-              {[5, 10, 25, 50].map((r) => (
-                <Chip key={r} active={radiusKm === r} onClick={() => setRadiusKm(r)}>{r} km</Chip>
-              ))}
-              <Chip active={radiusKm === null} onClick={() => setRadiusKm(null)}>Any distance</Chip>
-              <button
-                onClick={clearLocation}
-                className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-              >
-                <X className="h-3.5 w-3.5" /> Stop using location
-              </button>
-            </>
-          )}
-          {geoError && <span className="text-xs text-destructive">{geoError}</span>}
-        </div>
+          </div>
+        )}
+        {geoError && <p className="mt-2 text-xs text-destructive">{geoError}</p>}
       </div>
 
       {error && (
