@@ -197,6 +197,7 @@ function StationsPage() {
   const [limit, setLimit] = useState(18);
   const [selected, setSelected] = useState<string | null>(null);
   const [mobileView, setMobileView] = useState<"list" | "map">("list");
+  const [showFilters, setShowFilters] = useState(false);
   const { coords, status: geoStatus, error: geoError, request: locateMe, clear: clearLocation } = useGeolocation();
   const [radiusKm, setRadiusKm] = useState<number | null>(25);
 
