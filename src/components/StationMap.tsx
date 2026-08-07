@@ -20,6 +20,28 @@ const TILES = {
   },
 } as const;
 
+/** Keeps Leaflet in sync with container size changes (tab switches, resizes). */
+function ResizeHandler() {
+  const map = useMap();
+  useEffect(() => {
+    const el = map.getContainer();
+    const sync = () => {
+      const r = el.getBoundingClientRect();
+      if (r.width && r.height) map.invalidateSize();
+    };
+    const ro = new ResizeObserver(sync);
+    ro.observe(el);
+    window.addEventListener("orientationchange", sync);
+    const t = window.setTimeout(sync, 250);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("orientationchange", sync);
+      window.clearTimeout(t);
+    };
+  }, [map]);
+  return null;
+}
+
 /** Smoothly fits the view to the currently filtered stations. */
 function FitToStations({ stations }: { stations: Station[] }) {
   const map = useMap();
@@ -127,6 +149,7 @@ export function StationMap({ stations, height = "100%", onSelect, fitBounds = tr
       >
         <TileLayer key={isDark ? "dark" : "light"} attribution={tiles.attribution} url={tiles.url} />
         <ZoomControl position="bottomright" />
+        <ResizeHandler />
         {fitBounds && !userLocation && <FitToStations stations={stations} />}
         {userLocation && <UserLocationLayer coords={userLocation} />}
         <StationClusterLayer stations={stations} onSelect={onSelect} />
