@@ -150,6 +150,7 @@ function RootComponent() {
               <Outlet />
             </main>
             <Footer />
+            <PwaInstallPrompt />
           </div>
         </FavoritesProvider>
       </AuthProvider>
