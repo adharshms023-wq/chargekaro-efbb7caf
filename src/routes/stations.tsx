@@ -9,7 +9,6 @@ import { useStations } from "@/lib/stations-store";
 import { useChargers } from "@/lib/chargers-store";
 import {
   CONNECTOR_TYPES,
-  KERALA_DISTRICTS,
   distanceKm,
   formatDistance,
   isFastCharging,
@@ -27,16 +26,16 @@ export const Route = createFileRoute("/stations")({
   }),
   head: () => ({
     meta: [
-      { title: "EV Charging Stations in Kerala | ChargeKaro Directory" },
+      { title: "EV Charging Stations Across India | ChargeKaro Directory" },
       {
         name: "description",
         content:
-          "Browse real EV charging stations across all Kerala districts. Filter by district, provider, connector type, fast charging and 24x7 availability, with a live map and Google Maps navigation.",
+          "Browse real EV charging stations across India — Delhi, Mumbai, Bengaluru, Hyderabad, Chennai, Pune, Kolkata and more. Filter by region, provider, connector, fast charging and 24x7 availability.",
       },
-      { property: "og:title", content: "EV Charging Stations in Kerala | ChargeKaro" },
+      { property: "og:title", content: "EV Charging Stations Across India | ChargeKaro" },
       {
         property: "og:description",
-        content: "A live directory of EV charging stations across Kerala with map, filters and navigation links.",
+        content: "A live directory of EV charging stations across India with map, filters and navigation links.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -238,6 +237,11 @@ function StationsPage() {
     [stations],
   );
 
+  const districts = useMemo(
+    () => Array.from(new Set(stations.map((s) => s.district).filter(Boolean) as string[])).sort(),
+    [stations],
+  );
+
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     const list = stations.filter((s) => {
@@ -280,10 +284,10 @@ function StationsPage() {
     <main className="mx-auto max-w-7xl px-4 py-8">
       <header className="mb-6">
         <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
-          <BatteryCharging className="h-3.5 w-3.5" /> Kerala charging network
+          <BatteryCharging className="h-3.5 w-3.5" /> India charging network
         </span>
         <h1 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-          Charging stations across Kerala
+          Charging stations across India
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
           A live, continuously updated directory of publicly accessible EV charging stations — search, filter and
@@ -293,7 +297,7 @@ function StationsPage() {
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <Stat icon={Zap} value={stations.length} label="Stations listed" />
           <Stat icon={BatteryCharging} value={dcCount} label="Fast charging" />
-          <Stat icon={MapPin} value={districtCount} label="Districts covered" />
+          <Stat icon={MapPin} value={districtCount} label="Regions covered" />
           <Stat icon={Building2} value={providers.length} label="Providers" />
         </div>
       </header>
@@ -349,8 +353,8 @@ function StationsPage() {
         <>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           <select value={district} onChange={(e) => setDistrict(e.target.value)} className="rounded-full border border-border bg-background px-3 py-2 text-sm">
-            <option value="All">All districts</option>
-            {KERALA_DISTRICTS.map((d) => <option key={d} value={d}>{d}</option>)}
+            <option value="All">All regions</option>
+            {districts.map((d) => <option key={d} value={d}>{d}</option>)}
           </select>
           <select value={provider} onChange={(e) => setProvider(e.target.value)} className="rounded-full border border-border bg-background px-3 py-2 text-sm">
             <option value="All">All providers</option>
