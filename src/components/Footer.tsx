@@ -22,6 +22,7 @@ export function Footer() {
             <li><Link to="/explore" className="hover:text-foreground">Map</Link></li>
             <li><Link to="/list" className="hover:text-foreground">List a charger</Link></li>
             <li><Link to="/about" className="hover:text-foreground">About</Link></li>
+            <li><Link to="/" hash="support" className="hover:text-foreground">Support ChargeKaro ⚡</Link></li>
           </ul>
         </div>
         <div>
