@@ -349,6 +349,8 @@ function Index() {
           </Link>
         </div>
       </section>
+
+      <SupportSection />
     </div>
   );
 }
