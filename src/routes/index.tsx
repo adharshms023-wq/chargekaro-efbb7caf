@@ -14,13 +14,13 @@ export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "ChargeKaro — Find EV Charging Stations Across Kerala" },
+      { title: "ChargeKaro — Find EV Charging Stations Across India" },
       {
         name: "description",
         content:
-          "Discover public and community EV charging stations across Kerala. Live driver updates, transparent pricing, connector filters and one-tap navigation.",
+          "Discover public and community EV charging stations across India. Live driver updates, transparent pricing, connector filters and one-tap navigation.",
       },
-      { property: "og:title", content: "ChargeKaro — Find EV Charging Stations Across Kerala" },
+      { property: "og:title", content: "ChargeKaro — Find EV Charging Stations Across India" },
       {
         property: "og:description",
         content: "Find, compare and navigate to EV chargers near you — public stations, private hosts and EV-friendly places.",
@@ -70,7 +70,7 @@ function Index() {
             <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.1] tracking-tight text-foreground sm:mt-5 sm:text-5xl lg:text-6xl">
               Find EV charging stations{" "}
               <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-                anywhere in Kerala
+                anywhere in India
               </span>
             </h1>
             <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">
