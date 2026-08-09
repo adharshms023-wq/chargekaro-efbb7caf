@@ -8,6 +8,7 @@ import { useChargers } from "@/lib/chargers-store";
 import { useLiveUpdates, timeAgo, KIND_LABEL } from "@/lib/live-updates";
 import { chargerStatus, defaultPorts, haversineKm, USER_LOCATION } from "@/data/chargers";
 import { news, brands, popularCities } from "@/data/news";
+import { SupportSection } from "@/components/SupportSection";
 
 export const Route = createFileRoute("/")({
   component: Index,
