@@ -73,6 +73,13 @@ export function Navbar() {
               {l.label}
             </Link>
           ))}
+          <Link
+            to="/"
+            hash="support"
+            className="rounded-full px-4 py-2 text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
+          >
+            Support
+          </Link>
           <button
             onClick={toggleDark}
             className="ml-1 grid h-9 w-9 place-items-center rounded-full border border-border bg-background/60 text-foreground/70 transition-colors hover:text-foreground"
@@ -129,6 +136,14 @@ export function Navbar() {
                 {l.label}
               </Link>
             ))}
+            <Link
+              to="/"
+              hash="support"
+              onClick={() => setOpen(false)}
+              className="rounded-md px-4 py-3 text-sm font-medium"
+            >
+              Support
+            </Link>
             {user ? (
               <button
                 onClick={() => { setOpen(false); handleSignOut(); }}
