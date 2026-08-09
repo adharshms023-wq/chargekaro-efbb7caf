@@ -9,7 +9,6 @@ import { useStations } from "@/lib/stations-store";
 import { useChargers } from "@/lib/chargers-store";
 import {
   CONNECTOR_TYPES,
-  KERALA_DISTRICTS,
   distanceKm,
   formatDistance,
   isFastCharging,
@@ -235,6 +234,11 @@ function StationsPage() {
 
   const providers = useMemo(
     () => Array.from(new Set(stations.map((s) => s.provider).filter(Boolean) as string[])).sort(),
+    [stations],
+  );
+
+  const districts = useMemo(
+    () => Array.from(new Set(stations.map((s) => s.district).filter(Boolean) as string[])).sort(),
     [stations],
   );
 
