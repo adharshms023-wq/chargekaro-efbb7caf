@@ -24,7 +24,82 @@ const FACILITY_ICONS: Record<Facility, React.ComponentType<{ className?: string 
   Lounge: Sofa,
 };
 
+const SITE = "https://chargekaro.lovable.app";
+
+type ChargerMeta = {
+  name: string;
+  city: string | null;
+  address: string | null;
+  description: string | null;
+  image: string | null;
+  power_kw: number | null;
+  price_per_kwh: number | null;
+};
+
 export const Route = createFileRoute("/charger/$id")({
+  loader: async ({ params }): Promise<{ meta: ChargerMeta | null }> => {
+    try {
+      const { data } = await supabase
+        .from("chargers")
+        .select("name, city, address, description, image, power_kw, price_per_kwh")
+        .eq("id", params.id)
+        .eq("is_published", true)
+        .maybeSingle();
+      return { meta: (data as ChargerMeta | null) ?? null };
+    } catch {
+      return { meta: null };
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const m = loaderData?.meta;
+    const url = `${SITE}/charger/${params.id}`;
+    const title = m
+      ? `${m.name}${m.city ? ` — ${m.city}` : ""} EV Charger`.slice(0, 60)
+      : "EV Charger Details — ChargeKaro";
+    const description = m
+      ? `${m.name} in ${m.city ?? "India"}: ${m.power_kw ?? "—"} kW charging${
+          m.price_per_kwh ? ` at ₹${m.price_per_kwh}/kWh` : ""
+        }. ${m.description ?? "Check live status, connectors, directions and reviews on ChargeKaro."}`.slice(0, 158)
+      : "View EV charger details, connectors, pricing, live status and directions on ChargeKaro.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        ...(m?.image
+          ? [
+              { property: "og:image", content: m.image },
+              { name: "twitter:image", content: m.image },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: m
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "LocalBusiness",
+                name: m.name,
+                description: m.description ?? undefined,
+                image: m.image ?? undefined,
+                url,
+                address: {
+                  "@type": "PostalAddress",
+                  streetAddress: m.address ?? undefined,
+                  addressLocality: m.city ?? undefined,
+                  addressCountry: "IN",
+                },
+              }),
+            },
+          ]
+        : [],
+    };
+  },
   component: ChargerDetail,
   notFoundComponent: () => (
     <div className="mx-auto max-w-xl px-4 py-20 text-center">
