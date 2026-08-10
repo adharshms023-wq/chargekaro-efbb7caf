@@ -78,6 +78,9 @@ function AuthPage() {
         <span className="text-lg tracking-tight">ChargeShare</span>
       </Link>
       <div className="mt-8 rounded-3xl border border-border bg-card p-6 shadow-sm">
+        <h1 className="mb-4 text-center text-xl font-semibold tracking-tight">
+          Sign in or create your ChargeKaro account
+        </h1>
         <div className="flex gap-1 rounded-full bg-muted p-1">
           {(["signin", "signup"] as const).map((m) => (
             <button

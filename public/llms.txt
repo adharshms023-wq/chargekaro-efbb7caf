@@ -1,0 +1,14 @@
+# ChargeKaro
+
+> Community-powered directory of EV charging stations across India — find, compare and navigate to public and private chargers.
+
+ChargeKaro maps public charging networks (Tata Power, Statiq, ChargeZone, Jio-bp, Zeon, KSEB and more) alongside community-hosted private chargers, with filters for connector type, speed, price and availability.
+
+## Pages
+
+- [Home](/): Search chargers, popular cities and live driver updates.
+- [Charging stations directory](/stations): Full India-wide station directory with district, provider and connector filters.
+- [Explore map](/explore): Interactive map of public and community chargers.
+- [Community](/community): Live updates posted by drivers at stations.
+- [List your charger](/list): Host form to add a private charger.
+- [About](/about): What ChargeKaro is and who it is for.

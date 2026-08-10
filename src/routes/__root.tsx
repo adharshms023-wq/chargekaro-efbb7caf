@@ -116,6 +116,33 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              name: "ChargeKaro",
+              url: "https://chargekaro.lovable.app",
+              logo: "https://chargekaro.lovable.app/icon-512.png",
+            },
+            {
+              "@type": "WebSite",
+              name: "ChargeKaro",
+              url: "https://chargekaro.lovable.app",
+              potentialAction: {
+                "@type": "SearchAction",
+                target:
+                  "https://chargekaro.lovable.app/stations?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

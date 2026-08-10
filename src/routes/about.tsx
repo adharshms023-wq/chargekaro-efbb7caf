@@ -34,7 +34,7 @@ function About() {
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
               <c.icon className="h-5 w-5" />
             </div>
-            <h3 className="mt-4 font-semibold">{c.title}</h3>
+            <h2 className="mt-4 font-semibold">{c.title}</h2>
             <p className="mt-1 text-sm text-muted-foreground">{c.desc}</p>
           </div>
         ))}

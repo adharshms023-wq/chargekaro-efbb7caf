@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as StationsRouteImport } from './routes/stations'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as ListRouteImport } from './routes/list'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -23,6 +24,11 @@ import { Route as ChargerIdRouteImport } from './routes/charger.$id'
 const StationsRoute = StationsRouteImport.update({
   id: '/stations',
   path: '/stations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ListRoute = ListRouteImport.update({
@@ -79,6 +85,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/list': typeof ListRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
@@ -118,6 +127,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/explore'
     | '/list'
+    | '/sitemap.xml'
     | '/stations'
     | '/charger/$id'
     | '/edit/$id'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/explore'
     | '/list'
+    | '/sitemap.xml'
     | '/stations'
     | '/charger/$id'
     | '/edit/$id'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/explore'
     | '/list'
+    | '/sitemap.xml'
     | '/stations'
     | '/charger/$id'
     | '/edit/$id'
@@ -155,6 +167,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ExploreRoute: typeof ExploreRoute
   ListRoute: typeof ListRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StationsRoute: typeof StationsRoute
   ChargerIdRoute: typeof ChargerIdRoute
   EditIdRoute: typeof EditIdRoute
@@ -167,6 +180,13 @@ declare module '@tanstack/react-router' {
       path: '/stations'
       fullPath: '/stations'
       preLoaderRoute: typeof StationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/list': {
@@ -243,6 +263,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ExploreRoute: ExploreRoute,
   ListRoute: ListRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StationsRoute: StationsRoute,
   ChargerIdRoute: ChargerIdRoute,
   EditIdRoute: EditIdRoute,
