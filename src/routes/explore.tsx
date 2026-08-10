@@ -69,6 +69,7 @@ function Explore() {
 
   return (
     <div className="mx-auto grid max-w-[1500px] gap-4 px-4 py-6 lg:grid-cols-[380px_1fr]">
+      <h1 className="sr-only">Explore EV charging stations across India</h1>
       {/* Sidebar */}
       <aside className="space-y-4">
         <div className="rounded-2xl border border-border bg-card p-4">
