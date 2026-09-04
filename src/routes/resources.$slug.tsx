@@ -134,6 +134,7 @@ function ResourceArticlePage() {
         <div className="mt-4 flex flex-wrap gap-3 text-sm">
           <Link
             to="/stations"
+            search={{ q: undefined }}
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 font-medium text-primary-foreground hover:opacity-90"
           >
             <MapPin className="h-4 w-4" /> Find stations near you

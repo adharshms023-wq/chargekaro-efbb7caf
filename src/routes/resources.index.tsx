@@ -38,6 +38,7 @@ function ResourcesHub() {
       <div className="mt-8 flex flex-wrap gap-3 text-sm">
         <Link
           to="/stations"
+          search={{ q: undefined }}
           className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 font-medium hover:bg-muted"
         >
           <MapPin className="h-4 w-4 text-primary" /> Browse the stations directory
