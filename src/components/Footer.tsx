@@ -26,6 +26,15 @@ export function Footer() {
           </ul>
         </div>
         <div>
+          <h4 className="text-sm font-semibold">Resources</h4>
+          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+            <li><Link to="/resources" className="hover:text-foreground">EV charging guides</Link></li>
+            <li><Link to="/resources/$slug" params={{ slug: "how-to-find-reliable-ev-charging-stations-in-india" }} className="hover:text-foreground">Find a reliable station</Link></li>
+            <li><Link to="/resources/$slug" params={{ slug: "ev-charging-connectors-and-ac-vs-dc-explained" }} className="hover:text-foreground">Connectors & AC vs DC</Link></li>
+            <li><Link to="/resources/$slug" params={{ slug: "how-to-plan-an-ev-road-trip-with-charging-stops" }} className="hover:text-foreground">Plan an EV road trip</Link></li>
+          </ul>
+        </div>
+        <div>
           <h4 className="text-sm font-semibold">Coming soon</h4>
           <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li>Login</li>
