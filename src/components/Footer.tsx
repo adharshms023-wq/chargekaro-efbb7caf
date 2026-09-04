@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 export function Footer() {
   return (
     <footer className="mt-20 border-t border-border/60 bg-muted/30">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-4">
+      <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-2 lg:grid-cols-5">
         <div>
           <div className="flex items-center gap-2 font-semibold">
             <span className="clay-primary grid h-10 w-10 place-items-center">
