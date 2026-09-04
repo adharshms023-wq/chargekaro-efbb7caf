@@ -10,6 +10,7 @@ const links = [
   { to: "/community", label: "Community" },
   { to: "/list", label: "List Charger" },
   { to: "/dashboard", label: "Dashboard" },
+  { to: "/resources", label: "Guides" },
   { to: "/about", label: "About" },
 ] as const;
 

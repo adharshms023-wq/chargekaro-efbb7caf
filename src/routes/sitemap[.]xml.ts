@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import type {} from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { resources } from "@/data/resources";
 
 const BASE_URL = "https://chargekaro.lovable.app";
 
@@ -21,8 +22,13 @@ export const Route = createFileRoute("/sitemap.xml")({
           { path: "/community", changefreq: "daily", priority: "0.6" },
           { path: "/list", changefreq: "monthly", priority: "0.5" },
           { path: "/about", changefreq: "monthly", priority: "0.4" },
+          { path: "/resources", changefreq: "weekly", priority: "0.7" },
           { path: "/auth", changefreq: "yearly", priority: "0.2" },
         ];
+
+        for (const article of resources) {
+          entries.push({ path: `/resources/${article.slug}`, changefreq: "monthly", priority: "0.6" });
+        }
 
         try {
           const { data } = await supabase

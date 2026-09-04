@@ -1,5 +1,5 @@
 - [ ] Add trustworthy About, Contact, Privacy, Terms, Disclaimer, and Cookie pages
-- [ ] Add a useful Resources hub with three detailed EV guides and internal links
+- [x] Add a useful Resources hub with three detailed EV guides and internal links
 - [ ] Improve homepage content links and remove placeholder news destinations
 - [ ] Expand footer/navigation links and align public discovery assets
 - [ ] Add route metadata/canonicals and verify links, responsive rendering, and build

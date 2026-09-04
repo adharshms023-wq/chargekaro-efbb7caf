@@ -18,6 +18,8 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResourcesIndexRouteImport } from './routes/resources.index'
+import { Route as ResourcesSlugRouteImport } from './routes/resources.$slug'
 import { Route as EditIdRouteImport } from './routes/edit.$id'
 import { Route as ChargerIdRouteImport } from './routes/charger.$id'
 
@@ -66,6 +68,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
+  id: '/resources/',
+  path: '/resources/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesSlugRoute = ResourcesSlugRouteImport.update({
+  id: '/resources/$slug',
+  path: '/resources/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EditIdRoute = EditIdRouteImport.update({
   id: '/edit/$id',
   path: '/edit/$id',
@@ -89,6 +101,8 @@ export interface FileRoutesByFullPath {
   '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/resources/': typeof ResourcesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +116,8 @@ export interface FileRoutesByTo {
   '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/resources': typeof ResourcesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +132,8 @@ export interface FileRoutesById {
   '/stations': typeof StationsRoute
   '/charger/$id': typeof ChargerIdRoute
   '/edit/$id': typeof EditIdRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/resources/': typeof ResourcesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +149,8 @@ export interface FileRouteTypes {
     | '/stations'
     | '/charger/$id'
     | '/edit/$id'
+    | '/resources/$slug'
+    | '/resources/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +164,8 @@ export interface FileRouteTypes {
     | '/stations'
     | '/charger/$id'
     | '/edit/$id'
+    | '/resources/$slug'
+    | '/resources'
   id:
     | '__root__'
     | '/'
@@ -157,6 +179,8 @@ export interface FileRouteTypes {
     | '/stations'
     | '/charger/$id'
     | '/edit/$id'
+    | '/resources/$slug'
+    | '/resources/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +195,8 @@ export interface RootRouteChildren {
   StationsRoute: typeof StationsRoute
   ChargerIdRoute: typeof ChargerIdRoute
   EditIdRoute: typeof EditIdRoute
+  ResourcesSlugRoute: typeof ResourcesSlugRoute
+  ResourcesIndexRoute: typeof ResourcesIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -238,6 +264,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/resources/': {
+      id: '/resources/'
+      path: '/resources'
+      fullPath: '/resources/'
+      preLoaderRoute: typeof ResourcesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources/$slug': {
+      id: '/resources/$slug'
+      path: '/resources/$slug'
+      fullPath: '/resources/$slug'
+      preLoaderRoute: typeof ResourcesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/edit/$id': {
       id: '/edit/$id'
       path: '/edit/$id'
@@ -267,6 +307,8 @@ const rootRouteChildren: RootRouteChildren = {
   StationsRoute: StationsRoute,
   ChargerIdRoute: ChargerIdRoute,
   EditIdRoute: EditIdRoute,
+  ResourcesSlugRoute: ResourcesSlugRoute,
+  ResourcesIndexRoute: ResourcesIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
