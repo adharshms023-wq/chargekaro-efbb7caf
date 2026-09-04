@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { PlugZap, Menu, X, LogIn, LogOut, User, Moon, Sun } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, Moon, Sun } from "lucide-react";
+import logoAsset from "@/assets/chargekaro-logo.png.asset.json";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 
@@ -57,9 +58,13 @@ export function Navbar() {
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 font-semibold">
-          <span className="clay-primary grid h-10 w-10 place-items-center">
-            <PlugZap className="h-5 w-5" strokeWidth={2.4} />
-          </span>
+          <img
+            src={logoAsset.url}
+            alt="ChargeKaro logo"
+            className="h-10 w-10 rounded-xl object-cover shadow-md"
+            width={40}
+            height={40}
+          />
           <span className="text-lg font-bold tracking-tight">ChargeKaro</span>
         </Link>
         <nav className="hidden items-center gap-1 lg:flex">
