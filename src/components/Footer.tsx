@@ -1,4 +1,4 @@
-import { PlugZap } from "lucide-react";
+import logoAsset from "@/assets/chargekaro-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 
 export function Footer() {
@@ -7,9 +7,13 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-12 md:grid-cols-2 lg:grid-cols-5">
         <div>
           <div className="flex items-center gap-2 font-semibold">
-            <span className="clay-primary grid h-10 w-10 place-items-center">
-              <PlugZap className="h-5 w-5" strokeWidth={2.4} />
-            </span>
+            <img
+              src={logoAsset.url}
+              alt="ChargeKaro logo"
+              className="h-10 w-10 rounded-xl object-cover shadow-md"
+              width={40}
+              height={40}
+            />
             ChargeShare
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
