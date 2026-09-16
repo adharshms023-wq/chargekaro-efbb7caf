@@ -1,3 +1,4 @@
+- [x] Rebuild homepage around a mobile-first route planner and charging-stop journey
 - [ ] Add trustworthy About, Contact, Privacy, Terms, Disclaimer, and Cookie pages
 - [x] Add a useful Resources hub with three detailed EV guides and internal links
 - [ ] Improve homepage content links and remove placeholder news destinations
