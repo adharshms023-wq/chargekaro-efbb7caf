@@ -1,29 +1,41 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import {
-  Zap, MapPin, Users, Building2, Search, ListPlus, Navigation2, Sparkles,
-  ArrowRight, Star, Radio, Newspaper, Handshake, Compass, ShieldCheck, Clock,
+  ArrowRight,
+  BatteryCharging,
+  Check,
+  CircleDollarSign,
+  Clock3,
+  Gauge,
+  LocateFixed,
+  MapPin,
+  Navigation2,
+  PlugZap,
+  Route as RouteIcon,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  Zap,
 } from "lucide-react";
-import { useChargers } from "@/lib/chargers-store";
-import { useLiveUpdates, timeAgo, KIND_LABEL } from "@/lib/live-updates";
-import { chargerStatus, defaultPorts, haversineKm, USER_LOCATION } from "@/data/chargers";
-import { news, brands, popularCities } from "@/data/news";
 import { SupportSection } from "@/components/SupportSection";
+import { Button } from "@/components/ui/button";
+import { useGeolocation } from "@/hooks/use-geolocation";
+import { useStations } from "@/lib/stations-store";
 
 export const Route = createFileRoute("/")({
   component: Index,
   head: () => ({
     meta: [
-      { title: "ChargeKaro — Find EV Charging Stations Across India" },
+      { title: "Plan EV Routes & Charging Stops | ChargeKaro" },
       {
         name: "description",
         content:
-          "Discover public and community EV charging stations across India. Live driver updates, transparent pricing, connector filters and one-tap navigation.",
+          "Plan EV journeys across India and find charging stations along your route. Compare connectors, speed, availability and pricing before you drive.",
       },
-      { property: "og:title", content: "ChargeKaro — Find EV Charging Stations Across India" },
+      { property: "og:title", content: "Plan EV Routes & Charging Stops | ChargeKaro" },
       {
         property: "og:description",
-        content: "Find, compare and navigate to EV chargers near you — public stations, private hosts and EV-friendly places.",
+        content: "Enter your journey and find the right EV charging stops along the way with ChargeKaro.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -32,464 +44,322 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { chargers } = useChargers();
-  const { updates } = useLiveUpdates();
   const navigate = useNavigate();
-  const [query, setQuery] = useState("");
+  const { stations } = useStations();
+  const { coords, status, error: locationError, request: requestLocation } = useGeolocation();
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [submitted, setSubmitted] = useState(false);
 
-  const communityCount = chargers.filter((c) => c.source === "community").length;
-  const cityCount = new Set(chargers.map((c) => c.city)).size;
+  useEffect(() => {
+    if (coords) setFrom("Current location");
+  }, [coords]);
 
-  const nearby = [...chargers]
-    .map((c) => ({ c, dist: haversineKm(USER_LOCATION, [c.lat, c.lng]) }))
-    .sort((a, b) => a.dist - b.dist)
-    .slice(0, 6)
-    .map((x) => ({ ...x.c, _dist: x.dist } as typeof chargers[number] & { _dist: number }));
+  const stationCount = stations.length;
+  const operatorCount = new Set(stations.map((station) => station.provider).filter(Boolean)).size;
+  const connectorCount = new Set(stations.flatMap((station) => station.connectors)).size;
 
-  const featured = chargers.filter((c) => c.rating >= 4.7).slice(0, 3);
-  const community = chargers.filter((c) => c.source === "community").slice(0, 4);
+  const onPlanRoute = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setSubmitted(true);
+    if (!from.trim() || !to.trim()) return;
 
-  const onSearch = (e: FormEvent) => {
-    e.preventDefault();
-    navigate({ to: "/stations", search: { q: query.trim() || undefined } });
+    sessionStorage.setItem(
+      "chargekaro-planned-route",
+      JSON.stringify({
+        from: from.trim(),
+        to: to.trim(),
+        origin: coords ? { lat: coords.lat, lng: coords.lng } : null,
+      }),
+    );
+    navigate({ to: "/stations", search: { q: to.trim() } });
+  };
+
+  const swapStops = () => {
+    setFrom(to);
+    setTo(from);
+    setSubmitted(false);
   };
 
   return (
-    <div className="bg-background">
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -top-24 -left-24 h-72 w-72 rounded-full bg-primary/20 blur-3xl sm:h-96 sm:w-96" />
-          <div className="absolute right-0 top-1/3 h-72 w-72 rounded-full bg-secondary/15 blur-3xl sm:h-96 sm:w-96" />
-        </div>
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:py-16 lg:grid-cols-2 lg:gap-12 lg:py-24">
-          <div className="flex flex-col animate-fade-in">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-medium text-primary sm:text-xs">
-              <Sparkles className="h-3.5 w-3.5 shrink-0" /> Find → Compare → Navigate → Charge
+    <main className="overflow-hidden bg-background">
+      <section className="route-hero relative border-b border-border/60">
+        <div className="mx-auto grid min-h-[calc(100svh-4rem)] max-w-7xl items-center gap-10 px-4 py-10 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,1.03fr)_minmax(440px,0.97fr)] lg:gap-16 lg:py-20">
+          <div className="relative z-10 min-w-0">
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+              <Sparkles className="h-3.5 w-3.5" /> India’s route-first EV companion
             </div>
-            <h1 className="mt-4 text-[2rem] font-extrabold leading-[1.1] tracking-tight text-foreground sm:mt-5 sm:text-5xl lg:text-6xl">
-              Find EV charging stations{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
-                anywhere in India
-              </span>
+
+            <h1 className="mt-5 max-w-3xl text-[2.55rem] font-black leading-[1.02] sm:text-6xl lg:text-7xl">
+              Never run out of charge <span className="route-gradient-text">on the way.</span>
             </h1>
-            <p className="mt-4 max-w-lg text-[15px] leading-relaxed text-muted-foreground sm:mt-5 sm:text-lg">
-              Public stations, private hosts and EV-friendly places — with live driver updates, smart routing and transparent pricing.
+            <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+              Plan the journey, not just the next stop. ChargeKaro finds compatible charging stations along your route and near your destination.
             </p>
 
-            {/* Hero search */}
-            <form
-              onSubmit={onSearch}
-              className="mt-6 flex items-center gap-2 rounded-2xl border border-border bg-card p-1.5 shadow-lg shadow-primary/10 sm:mt-7 sm:rounded-full"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2 pl-3 sm:pl-4">
-                <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  aria-label="Search charging stations"
-                  placeholder="Search city, provider or connector"
-                  className="w-full min-w-0 bg-transparent py-2.5 text-sm outline-none placeholder:text-muted-foreground/80"
+            <form onSubmit={onPlanRoute} className="mt-7 rounded-2xl border border-border/80 bg-card/95 p-3 shadow-2xl shadow-primary/10 backdrop-blur-xl sm:p-4">
+              <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
+                <TripInput
+                  id="trip-from"
+                  label="From"
+                  value={from}
+                  placeholder="Your starting point"
+                  icon="origin"
+                  invalid={submitted && !from.trim()}
+                  onChange={setFrom}
+                >
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={requestLocation}
+                    disabled={status === "locating"}
+                    aria-label="Use my current location"
+                    title="Use my location"
+                    className="h-10 w-10 shrink-0 rounded-xl text-primary hover:bg-primary/10"
+                  >
+                    <LocateFixed className={status === "locating" ? "animate-spin" : ""} />
+                  </Button>
+                </TripInput>
+
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={swapStops}
+                  aria-label="Swap starting point and destination"
+                  title="Swap stops"
+                  className="mx-auto h-9 w-9 rotate-90 rounded-full border-border bg-card sm:rotate-0"
+                >
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+
+                <TripInput
+                  id="trip-to"
+                  label="To"
+                  value={to}
+                  placeholder="Where are you going?"
+                  icon="destination"
+                  invalid={submitted && !to.trim()}
+                  onChange={setTo}
                 />
               </div>
-              <button
+
+              {(locationError || (submitted && (!from.trim() || !to.trim()))) && (
+                <p role="alert" className="mt-3 text-xs font-medium text-destructive">
+                  {locationError ?? "Enter both your starting point and destination to plan the route."}
+                </p>
+              )}
+
+              <Button
                 type="submit"
-                className="inline-flex shrink-0 items-center gap-1 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-transform active:scale-95 sm:rounded-full sm:px-5"
+                size="lg"
+                className="mt-3 h-12 w-full rounded-xl font-bold shadow-lg shadow-primary/20 transition-transform hover:-translate-y-0.5 active:translate-y-0"
               >
-                <span className="hidden sm:inline">Search</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
+                <RouteIcon className="h-5 w-5" /> Plan my route <ArrowRight className="h-4 w-4" />
+              </Button>
             </form>
 
-            <div className="mt-4 flex flex-wrap gap-2 text-xs">
-              <Link to="/community" className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 font-semibold text-primary">
-                <Radio className="h-3 w-3 animate-pulse" /> {updates.length} live updates
-              </Link>
-              <Link to="/list" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 font-medium">
-                <ListPlus className="h-3 w-3" /> Become a host
-              </Link>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 font-medium text-muted-foreground">
-                <ShieldCheck className="h-3 w-3" /> Verified listings
-              </span>
+            <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> No sign-up needed</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> Connector-aware stops</span>
+              <span className="inline-flex items-center gap-1.5"><Check className="h-3.5 w-3.5 text-primary" /> India-wide coverage</span>
             </div>
           </div>
 
-          <div className="relative order-first mx-auto w-full max-w-sm lg:order-none lg:max-w-none">
-            <EvIllustration />
-          </div>
+          <RoutePreview />
         </div>
       </section>
 
-      {/* Quick actions */}
-      <section className="mx-auto max-w-6xl px-4">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <section aria-label="ChargeKaro network statistics" className="border-b border-border/60 bg-card/60">
+        <div className="mx-auto grid max-w-6xl grid-cols-2 px-4 sm:grid-cols-4 sm:px-6">
           {[
-            { icon: MapPin, label: "Stations near me", to: "/stations" as const },
-            { icon: Navigation2, label: "Explore map", to: "/explore" as const },
-            { icon: Radio, label: "Live feed", to: "/community" as const },
-            { icon: ListPlus, label: "List a charger", to: "/list" as const },
-          ].map((a) => (
-            <Link
-              key={a.label}
-              to={a.to}
-              className="flex items-center gap-2.5 rounded-2xl border border-border bg-card p-3 text-left transition-all hover:-translate-y-0.5 hover:shadow-md sm:flex-col sm:items-start sm:gap-3 sm:p-4"
-            >
-              <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                <a.icon className="h-4.5 w-4.5" />
-              </span>
-              <span className="min-w-0 text-[13px] font-semibold leading-tight sm:text-sm">{a.label}</span>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="mx-auto mt-4 grid max-w-6xl grid-cols-2 gap-3 px-4 sm:gap-4 lg:grid-cols-4">
-        {[
-          { icon: Zap, label: "Chargers", value: chargers.length },
-          { icon: Users, label: "Community hosts", value: communityCount },
-          { icon: Building2, label: "Cities", value: cityCount },
-          { icon: Radio, label: "Live now", value: updates.length },
-        ].map((s) => (
-          <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-sm transition-transform hover:-translate-y-1 sm:p-5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary sm:h-10 sm:w-10">
-              <s.icon className="h-5 w-5" />
+            { value: stationCount ? `${stationCount}+` : "Growing", label: "stations mapped" },
+            { value: operatorCount ? `${operatorCount}+` : "Many", label: "charging networks" },
+            { value: connectorCount ? `${connectorCount}` : "5", label: "connector types" },
+            { value: "India", label: "built for every route" },
+          ].map((stat) => (
+            <div key={stat.label} className="border-border/60 px-3 py-5 text-center even:border-l sm:border-l sm:px-6 sm:py-7 sm:first:border-l-0">
+              <p className="text-xl font-black text-foreground sm:text-2xl">{stat.value}</p>
+              <p className="mt-1 text-[11px] text-muted-foreground sm:text-xs">{stat.label}</p>
             </div>
-            <div className="mt-3 text-2xl font-bold sm:text-3xl">{s.value}</div>
-            <div className="text-xs text-muted-foreground sm:text-sm">{s.label}</div>
-          </div>
-        ))}
-      </section>
-
-      {/* Featured chargers */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-        <SectionHeader eyebrow="Featured" title="Top-rated chargers this month" link={{ to: "/explore", label: "See all" }} />
-        <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((c) => (
-            <FeaturedCard key={c.id} c={c} />
           ))}
         </div>
       </section>
 
-      {/* Nearby chargers */}
-      <section className="bg-muted/30 py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4">
-          <SectionHeader eyebrow="Near you" title="Chargers around your location" link={{ to: "/stations", label: "Open map" }} />
-          <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            {nearby.map((c) => (
-              <NearbyCard key={c.id} c={c} dist={c._dist} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Popular cities */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-        <SectionHeader eyebrow="Explore India" title="Popular EV cities" />
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:grid-cols-3 lg:grid-cols-6">
-          {popularCities.map((c) => (
-            <Link
-              key={c.name}
-              to="/explore"
-              className="group rounded-2xl border border-border bg-card p-3.5 transition-all hover:-translate-y-1 hover:shadow-md sm:p-4"
-            >
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary sm:h-10 sm:w-10">
-                <Compass className="h-5 w-5" />
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+        <SectionHeading eyebrow="A calmer way to travel" title="From route to reliable charging in three steps" description="ChargeKaro keeps the decisions simple while giving you the details that matter before you leave." />
+        <div className="relative mt-10 grid gap-4 md:grid-cols-3 md:gap-6">
+          <div aria-hidden className="absolute left-[17%] right-[17%] top-10 hidden border-t border-dashed border-primary/40 md:block" />
+          {[
+            { icon: RouteIcon, title: "Enter your route", description: "Add your starting point and destination, or use your live location." },
+            { icon: MapPin, title: "Find the right stops", description: "See charging stations near your path and around your destination." },
+            { icon: BatteryCharging, title: "Charge with confidence", description: "Compare availability, plug type, speed and pricing before you arrive." },
+          ].map((step, index) => (
+            <article key={step.title} className="relative border-t border-border bg-background pt-6 md:border-t-0 md:pt-0">
+              <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full border border-primary/30 bg-background shadow-lg shadow-primary/10">
+                <span className="absolute -right-1 -top-1 grid h-7 w-7 place-items-center rounded-full bg-primary text-xs font-black text-primary-foreground">{index + 1}</span>
+                <step.icon className="h-8 w-8 text-primary" />
               </div>
-              <div className="mt-3 truncate text-sm font-semibold">{c.name}</div>
-              <div className="truncate text-xs text-muted-foreground">{c.chargers}+ chargers · {c.state}</div>
-            </Link>
+              <h3 className="mt-5 text-xl font-bold">{step.title}</h3>
+              <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">{step.description}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* Community chargers */}
-      {community.length > 0 && (
-        <section className="relative overflow-hidden py-12 sm:py-16">
-          <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-br from-primary/10 via-transparent to-transparent" />
-          <div className="mx-auto max-w-7xl px-4">
-            <SectionHeader eyebrow="Community" title="Private hosts open to travelers" link={{ to: "/list", label: "Become a host" }} />
-            <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 lg:grid-cols-4">
-              {community.map((c) => (
-                <Link
-                  key={c.id}
-                  to="/charger/$id"
-                  params={{ id: c.id }}
-                  className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-lg"
-                >
-                  <div className="relative aspect-[4/3] overflow-hidden">
-                    <img src={c.image} alt={c.name} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                    <span className="absolute left-2 top-2 rounded-full bg-secondary px-2 py-0.5 text-[10px] font-bold uppercase text-secondary-foreground">Private</span>
-                  </div>
-                  <div className="p-3 sm:p-4">
-                    <div className="truncate text-sm font-semibold">{c.name}</div>
-                    <div className="mt-0.5 truncate text-xs text-muted-foreground">Hosted by {c.ownerName ?? "Community"}</div>
-                    <div className="mt-2 flex items-center justify-between gap-2 text-xs">
-                      <span className="truncate text-muted-foreground">₹{c.pricePerKwh}/kWh · {c.powerKw}kW</span>
-                      <span className="inline-flex shrink-0 items-center gap-0.5"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />{c.rating}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Live community feed teaser */}
-      <section className="mx-auto max-w-7xl px-4 pb-12 sm:pb-16">
-        <div className="grid gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:grid-cols-[1fr_360px] lg:p-8">
+      <section className="border-y border-border/60 bg-foreground text-background dark:bg-card dark:text-foreground">
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary sm:text-xs">
-              <Radio className="h-3.5 w-3.5 animate-pulse" /> CHARGE TOGETHER
-            </div>
-            <h3 className="mt-3 text-xl font-bold tracking-tight sm:text-3xl">Live updates from drivers, right now</h3>
-            <p className="mt-2 max-w-lg text-sm text-muted-foreground">
-              “No queue”, “2 ports open”, “Station offline” — a real-time community pulse. Posts expire in a few hours so info stays fresh.
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase text-primary"><Zap className="h-4 w-4" /> Built for the road</div>
+            <h2 className="mt-4 text-3xl font-black leading-tight sm:text-5xl">A route planner with charging intelligence.</h2>
+            <p className="mt-5 max-w-lg text-sm leading-relaxed text-background/65 dark:text-muted-foreground sm:text-base">
+              Nearby is not always useful. We focus on stations that make sense for where you are actually going.
             </p>
-            <Link to="/community" className="mt-5 inline-flex w-full items-center justify-center gap-1 rounded-full bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground sm:w-auto">
-              Open community feed <ArrowRight className="h-4 w-4" />
+            <Link to="/stations" search={{ q: undefined }} className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline">
+              Explore the station map <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="space-y-2">
-            {updates.slice(0, 3).map((u) => (
-              <div key={u.id} className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-                <div className="text-[10px] font-bold uppercase tracking-wide text-primary">{KIND_LABEL[u.kind]}</div>
-                <div className="mt-0.5 text-sm">{u.message}</div>
-                <div className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
-                  <Clock className="h-3 w-3" /> {u.author} · {timeAgo(u.createdAt)}
-                </div>
-              </div>
-            ))}
-            {updates.length === 0 && (
-              <div className="rounded-xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                No live updates yet — be the first driver to post one.
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
 
-      {/* How it works */}
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:py-16">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold tracking-tight sm:text-4xl">How it works</h2>
-          <p className="mt-2 text-sm text-muted-foreground sm:mt-3 sm:text-base">Three simple steps to charge anywhere.</p>
-        </div>
-        <div className="mt-8 grid gap-5 sm:mt-12 md:grid-cols-3">
-          {[
-            { icon: Search, title: "Search", desc: "Find chargers around you on an interactive map." },
-            { icon: Navigation2, title: "Navigate", desc: "Get directions and details in a single tap." },
-            { icon: ListPlus, title: "Share", desc: "Host your own charger and earn from your community." },
-          ].map((f, i) => (
-            <div key={f.title} className="group relative rounded-2xl border border-border bg-card p-5 transition-shadow hover:shadow-lg sm:p-6">
-              <div className="absolute -top-3 left-5 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground sm:left-6">
-                Step {i + 1}
-              </div>
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                <f.icon className="h-5 w-5" />
-              </div>
-              <h3 className="mt-4 text-lg font-semibold">{f.title}</h3>
-              <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* News */}
-      <section className="bg-muted/30 py-12 sm:py-16">
-        <div className="mx-auto max-w-7xl px-4">
-          <SectionHeader eyebrow="EV News" title="Latest in Indian EV mobility" />
-          <div className="mt-6 grid gap-4 sm:mt-8 sm:grid-cols-2 lg:grid-cols-3">
-            {news.map((n) => (
-              <a key={n.id} href={n.url} className="group overflow-hidden rounded-2xl border border-border bg-card transition-all hover:-translate-y-1 hover:shadow-lg">
-                <div className="aspect-[16/10] overflow-hidden">
-                  <img src={n.image} alt={n.title} loading="lazy" className="h-full w-full object-cover transition-transform group-hover:scale-105" />
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
-                    <Newspaper className="h-3 w-3" /> {n.source}
-                  </div>
-                  <div className="mt-2 text-sm font-semibold">{n.title}</div>
-                  <div className="mt-1 text-xs text-muted-foreground">{n.date}</div>
-                </div>
-              </a>
+          <div className="grid gap-px overflow-hidden rounded-lg border border-background/15 bg-background/15 dark:border-border dark:bg-border sm:grid-cols-2">
+            {[
+              { icon: RouteIcon, title: "Route-based discovery", text: "Find useful stops along the drive, not a random list around you." },
+              { icon: Clock3, title: "Availability signals", text: "Check station status and recent driver updates before detouring." },
+              { icon: PlugZap, title: "Connector matching", text: "Narrow results to the plug types compatible with your EV." },
+              { icon: Gauge, title: "Charging speed filters", text: "Compare AC, DC and high-power options for the time you have." },
+              { icon: CircleDollarSign, title: "Pricing clarity", text: "Review available pricing details before selecting a stop." },
+              { icon: SlidersHorizontal, title: "Trip-ready filters", text: "Balance distance, charging speed and convenience in one view." },
+            ].map((feature) => (
+              <article key={feature.title} className="bg-foreground p-5 dark:bg-card sm:p-6">
+                <feature.icon className="h-6 w-6 text-primary" />
+                <h3 className="mt-4 font-bold">{feature.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-background/60 dark:text-muted-foreground">{feature.text}</p>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Partner brands */}
-      <section className="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-        <SectionHeader eyebrow="Partners" title="Networks on ChargeKaro" />
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:grid-cols-3 lg:grid-cols-6">
-          {brands.map((b) => (
-            <div key={b.id} className="flex flex-col items-center rounded-2xl border border-border bg-card p-4 text-center transition-transform hover:-translate-y-1 sm:p-5">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
-                <Handshake className="h-5 w-5" />
-              </div>
-              <div className="mt-2 text-sm font-semibold">{b.name}</div>
-              <div className="text-xs text-muted-foreground">{b.tagline}</div>
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="relative overflow-hidden rounded-lg border border-primary/30 bg-primary/10 px-5 py-10 text-center sm:px-10 sm:py-14">
+          <div aria-hidden className="route-grid absolute inset-0 opacity-40" />
+          <div className="relative mx-auto max-w-2xl">
+            <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-primary text-primary-foreground"><Navigation2 className="h-5 w-5" /></span>
+            <h2 className="mt-5 text-3xl font-black sm:text-5xl">Ready for your next electric drive?</h2>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">Plan a route now, or sign in to save stations and contribute updates for other EV drivers.</p>
+            <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
+              <Button asChild size="lg" className="h-12 rounded-xl px-6 font-bold">
+                <a href="#top" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}><RouteIcon /> Plan a route</a>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="h-12 rounded-xl px-6 font-bold">
+                <Link to="/auth"><ShieldCheck /> Sign in to ChargeKaro</Link>
+              </Button>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="mx-auto max-w-7xl px-4 pb-16 sm:pb-20">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-secondary p-6 text-primary-foreground shadow-2xl shadow-primary/30 sm:p-12">
-          <h3 className="text-2xl font-bold tracking-tight sm:text-4xl">Have a charger? Share it. Earn from it.</h3>
-          <p className="mt-3 max-w-2xl text-sm text-primary-foreground/90 sm:text-base">
-            Turn your driveway wallbox into a community asset. Set your price, hours and rules — we handle discovery.
-          </p>
-          <Link
-            to="/list"
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-full bg-card px-6 py-3 text-sm font-semibold text-primary shadow-lg sm:w-auto"
-          >
-            List your charger <ArrowRight className="h-4 w-4" />
-          </Link>
+          </div>
         </div>
       </section>
 
       <SupportSection />
-    </div>
+    </main>
   );
 }
 
-function SectionHeader({
-  eyebrow,
-  title,
-  link,
+function TripInput({
+  id,
+  label,
+  value,
+  placeholder,
+  icon,
+  invalid,
+  onChange,
+  children,
 }: {
-  eyebrow: string;
-  title: string;
-  link?: { to: "/explore" | "/list" | "/stations"; label: string };
+  id: string;
+  label: string;
+  value: string;
+  placeholder: string;
+  icon: "origin" | "destination";
+  invalid: boolean;
+  onChange: (value: string) => void;
+  children?: React.ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3 sm:gap-4">
-      <div className="min-w-0">
-        <div className="text-[11px] font-bold uppercase tracking-widest text-primary sm:text-xs">{eyebrow}</div>
-        <h2 className="mt-1 text-xl font-bold tracking-tight sm:text-3xl">{title}</h2>
-      </div>
-      {link && (
-        <Link
-          to={link.to}
-          className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold hover:bg-muted sm:px-4 sm:py-2"
-        >
-          {link.label} <ArrowRight className="h-3 w-3" />
-        </Link>
-      )}
+    <div className={`group grid min-w-0 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border bg-background px-3 py-2 transition-all focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 ${invalid ? "border-destructive" : "border-border"}`}>
+      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${icon === "origin" ? "bg-secondary/15 text-secondary" : "bg-primary/15 text-primary"}`}>
+        {icon === "origin" ? <Navigation2 className="h-4 w-4" /> : <MapPin className="h-4 w-4" />}
+      </span>
+      <label htmlFor={id} className="min-w-0">
+        <span className="block text-[10px] font-bold uppercase text-muted-foreground">{label}</span>
+        <input
+          id={id}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          aria-invalid={invalid}
+          className="mt-0.5 w-full min-w-0 border-0 bg-transparent p-0 text-sm font-semibold shadow-none outline-none placeholder:font-normal placeholder:text-muted-foreground/70 focus:outline-none"
+        />
+      </label>
+      {children ?? <span className="h-10 w-1" />}
     </div>
   );
 }
 
-function FeaturedCard({ c }: { c: ReturnType<typeof useChargers>["chargers"][number] }) {
+function RoutePreview() {
   return (
-    <Link
-      to="/charger/$id"
-      params={{ id: c.id }}
-      className="group relative overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:shadow-2xl"
-    >
-      <div className="relative aspect-[4/3] overflow-hidden">
-        <img src={c.image} alt={c.name} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-transparent to-transparent" />
-        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-primary/95 px-2.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground backdrop-blur">Featured</span>
-          <span className="rounded-full bg-card/90 px-2 py-0.5 text-[10px] font-semibold text-foreground backdrop-blur">
-            {c.source === "community" ? "Private" : c.source === "place" ? "EV-friendly" : "Public"}
-          </span>
-        </div>
-        <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-card/95 px-2 py-1 text-xs font-bold shadow">
-          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />{c.rating}
-        </div>
-        <div className="absolute bottom-3 left-3 right-20 text-background dark:text-foreground">
-          <div className="truncate text-base font-bold text-white">{c.name}</div>
-          <div className="truncate text-xs text-white/90">{c.city}</div>
-        </div>
-      </div>
-      <div className="grid grid-cols-3 gap-2 p-3 text-xs sm:p-4">
-        <Cell label="Power" value={`${c.powerKw}kW`} />
-        <Cell label="Price" value={`₹${c.pricePerKwh}`} />
-        <Cell label="Ports" value={String(defaultPorts(c))} />
-      </div>
-    </Link>
-  );
-}
+    <div className="relative mx-auto w-full max-w-xl" aria-label="Illustrated electric vehicle route from Bengaluru to Goa with charging stops">
+      <div className="route-grid absolute inset-[8%] rounded-full opacity-60" aria-hidden />
+      <div className="relative aspect-[4/3] min-h-[330px] sm:min-h-[430px]">
+        <svg viewBox="0 0 560 430" className="absolute inset-0 h-full w-full text-primary" aria-hidden>
+          <path d="M65 340 C95 250 175 325 220 235 S350 205 390 125 S470 150 505 65" fill="none" stroke="currentColor" strokeWidth="18" strokeLinecap="round" opacity=".08" />
+          <path className="route-path" d="M65 340 C95 250 175 325 220 235 S350 205 390 125 S470 150 505 65" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeDasharray="10 12" />
+        </svg>
 
-function NearbyCard({ c, dist }: { c: ReturnType<typeof useChargers>["chargers"][number]; dist: number }) {
-  const status = chargerStatus(c);
-  return (
-    <Link
-      to="/charger/$id"
-      params={{ id: c.id }}
-      className="group flex gap-3 rounded-2xl border border-border bg-card p-3 transition-all hover:-translate-y-0.5 hover:shadow-md"
-    >
-      <img src={c.image} alt={c.name} loading="lazy" className="h-20 w-20 shrink-0 rounded-xl object-cover sm:h-24 sm:w-24" />
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-1.5">
-          <span
-            className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[9px] font-bold uppercase ${
-              status === "available"
-                ? "bg-primary/15 text-primary"
-                : status === "busy"
-                  ? "bg-orange-100 text-orange-700"
-                  : "bg-muted text-muted-foreground"
-            }`}
-          >
-            <span className="h-1 w-1 rounded-full bg-current" /> {status}
-          </span>
-          <span className="text-[10px] font-medium text-muted-foreground">{dist.toFixed(1)} km</span>
+        <RoutePoint className="left-[5%] top-[73%]" label="Bengaluru" sublabel="Start" tone="secondary" />
+        <RoutePoint className="right-[2%] top-[4%]" label="Goa" sublabel="Destination" tone="primary" />
+
+        <div className="route-float absolute left-[34%] top-[43%] rounded-lg border border-border bg-card p-3 shadow-xl">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-md bg-primary text-primary-foreground"><Zap className="h-5 w-5" /></span>
+            <div><p className="text-xs font-bold">Charge stop 1</p><p className="text-[10px] text-muted-foreground">CCS2 · 60 kW · Available</p></div>
+          </div>
         </div>
-        <div className="mt-1 truncate text-sm font-semibold">{c.name}</div>
-        <div className="truncate text-xs text-muted-foreground">
-          <MapPin className="mr-0.5 inline h-3 w-3" />{c.city}
+
+        <div className="route-float-delayed absolute right-[13%] top-[26%] rounded-lg border border-border bg-card p-3 shadow-xl">
+          <div className="flex items-center gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-md bg-accent/20 text-accent"><BatteryCharging className="h-5 w-5" /></span>
+            <div><p className="text-xs font-bold">Charge stop 2</p><p className="text-[10px] text-muted-foreground">DC fast · 2 ports</p></div>
+          </div>
         </div>
-        <div className="mt-1.5 flex items-center justify-between gap-2 text-xs">
-          <span className="truncate text-muted-foreground">{c.powerKw}kW · ₹{c.pricePerKwh}</span>
-          <span className="inline-flex shrink-0 items-center gap-0.5"><Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />{c.rating}</span>
+
+        <div className="absolute bottom-[2%] right-[7%] grid grid-cols-3 gap-px overflow-hidden rounded-lg border border-border bg-border shadow-lg">
+          <PreviewStat value="583 km" label="Route" />
+          <PreviewStat value="2 stops" label="Charging" />
+          <PreviewStat value="8h 40m" label="Drive" />
         </div>
       </div>
-    </Link>
-  );
-}
-
-function Cell({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg bg-muted/50 p-2 text-center">
-      <div className="text-[9px] uppercase tracking-wide text-muted-foreground">{label}</div>
-      <div className="text-sm font-bold">{value}</div>
     </div>
   );
 }
 
-function EvIllustration() {
+function RoutePoint({ className, label, sublabel, tone }: { className: string; label: string; sublabel: string; tone: "primary" | "secondary" }) {
   return (
-    <svg viewBox="0 0 500 400" role="img" aria-label="Electric car charging illustration" className="w-full drop-shadow-xl">
-      <defs>
-        <linearGradient id="body" x1="0" x2="1" y1="0" y2="1">
-          <stop offset="0" stopColor="#00E676" />
-          <stop offset="1" stopColor="#00BCD4" />
-        </linearGradient>
-        <linearGradient id="ground" x1="0" x2="0" y1="0" y2="1">
-          <stop offset="0" stopColor="#00E676" stopOpacity="0.22" />
-          <stop offset="1" stopColor="#00E676" stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <ellipse cx="250" cy="360" rx="220" ry="30" fill="url(#ground)" />
-      <rect x="60" y="140" width="60" height="180" rx="14" fill="#0D1117" />
-      <rect x="72" y="156" width="36" height="50" rx="6" fill="#00E676" />
-      <circle cx="90" cy="230" r="5" fill="#00E676" />
-      <circle cx="90" cy="250" r="5" fill="#00E676" opacity="0.5" />
-      <path d="M120 210 C 160 210, 170 240, 200 240" stroke="#0D1117" strokeWidth="6" fill="none" strokeLinecap="round" />
-      <path d="M180 280 L220 220 Q235 205 260 205 L340 205 Q365 205 380 220 L420 280 Z" fill="url(#body)" />
-      <rect x="180" y="270" width="240" height="40" rx="14" fill="#00BFA5" />
-      <path d="M230 220 L250 250 L300 250 L305 220 Z" fill="#E0F2FE" opacity="0.85" />
-      <path d="M310 220 L315 250 L365 250 L375 220 Z" fill="#E0F2FE" opacity="0.85" />
-      <circle cx="220" cy="320" r="22" fill="#0D1117" />
-      <circle cx="380" cy="320" r="22" fill="#0D1117" />
-      <circle cx="220" cy="320" r="9" fill="#64748B" />
-      <circle cx="380" cy="320" r="9" fill="#64748B" />
-      <path d="M410 90 L390 140 L410 140 L400 180 L440 120 L420 120 L430 90 Z" fill="#FDE047" stroke="#0D1117" strokeWidth="2" strokeLinejoin="round" />
-    </svg>
+    <div className={`absolute ${className} flex items-center gap-2`}>
+      <span className={`route-pulse grid h-11 w-11 place-items-center rounded-full border-4 border-background shadow-lg ${tone === "primary" ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}><MapPin className="h-5 w-5" /></span>
+      <span><span className="block text-[10px] text-muted-foreground">{sublabel}</span><span className="block text-xs font-black">{label}</span></span>
+    </div>
+  );
+}
+
+function PreviewStat({ value, label }: { value: string; label: string }) {
+  return <div className="bg-card px-3 py-2 text-center"><p className="text-xs font-black">{value}</p><p className="text-[9px] text-muted-foreground">{label}</p></div>;
+}
+
+function SectionHeading({ eyebrow, title, description }: { eyebrow: string; title: string; description: string }) {
+  return (
+    <div className="max-w-3xl">
+      <p className="text-xs font-bold uppercase text-primary">{eyebrow}</p>
+      <h2 className="mt-3 text-3xl font-black leading-tight sm:text-5xl">{title}</h2>
+      <p className="mt-4 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">{description}</p>
+    </div>
   );
 }
